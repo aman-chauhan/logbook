@@ -2,5 +2,14 @@
   "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "bierner.github-markdown-preview",
+        "ms-python.black-formatter"
+      ]
+    }
   }
 }

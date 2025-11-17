@@ -45,16 +45,13 @@ cp .env.example .env
 # Edit .env and set SECRET_KEY to a strong random value
 # Note: FLASK_APP is already configured in .env.example
 
-# 5. Initialize database
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
-
-# 6. Start the server
+# 5. Start the server (database already initialized)
 honcho start
 ```
 
 The API will be available at `http://localhost:5000`
+
+**Note**: Database models and migrations are already set up. The database will be created automatically when you first start the server.
 
 ### Quick Test
 
@@ -63,41 +60,48 @@ The API will be available at `http://localhost:5000`
 curl http://localhost:5000/health
 # Returns: {"data": {"type": "health-status", "id": "1", "attributes": {"status": "healthy"}}}
 
-# Register a user (returns 201 Created)
-curl -X POST http://localhost:5000/api/auth/enlist \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.api+json" \
-  -d '{"username": "john", "email": "john@example.com", "password": "pass123"}'
-
-# Create an entry (returns 201 Created)
-curl -X POST http://localhost:5000/api/entries \
-  -u john:pass123 \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.api+json" \
-  -d '{"content": "My first entry"}'
-
-# Get chronicle (returns 200 OK with array)
-curl http://localhost:5000/api/chronicle -u john:pass123
+# Check API info
+curl http://localhost:5000/
+# Returns: {"data": {"type": "api-info", "id": "1", "attributes": {"message": "Logbook API", "version": "1.0.0", "endpoints": "/api"}}}
 ```
+
+**Note**: The `/api` endpoints (authentication, users, entries) are not yet implemented. Currently only the root and health check endpoints are available.
 
 ## Project Structure
 
 ```
 logbook/
-├── apiserver/             # Application package (future)
-│   ├── __init__.py        # Application factory
-│   ├── models.py          # Database models
-│   ├── auth.py            # Auth decorators
-│   ├── api/               # API endpoints
-│   │   ├── auth.py        # Registration/login
-│   │   ├── users.py       # User management
-│   │   └── posts.py       # Entry management
-│   └── run.py             # Entry point with configuration
-├── migrations/            # Database migrations
-└── requirements.txt       # Dependencies
+├── apiserver/             # Application package
+│   ├── __init__.py        # Package initialization ✓
+│   ├── extensions.py      # Flask extensions (db, migrate) ✓
+│   ├── models.py          # Database models (Scribe, Entry) ✓
+│   ├── run.py             # Application entry point ✓
+│   ├── auth.py            # Auth decorators (TODO)
+│   └── api/               # API endpoints (TODO)
+│       ├── __init__.py    # API blueprint registration
+│       ├── auth.py        # Registration/login
+│       ├── users.py       # User management
+│       └── posts.py       # Entry management
+├── instance/              # Instance folder
+│   └── logbook.db         # SQLite database ✓
+├── migrations/            # Database migrations ✓
+│   └── versions/          # Migration scripts ✓
+├── venv/                  # Virtual environment
+├── requirements.txt       # Dependencies ✓
+├── Procfile               # Honcho configuration ✓
+├── .env                   # Environment variables ✓
+└── README.md              # This file
 ```
 
+**Current Status**:
+- ✓ Database models created with salt-based password hashing
+- ✓ Database initialized with migrations applied
+- ✓ Basic Flask application with health check endpoints
+- TODO: Authentication decorators and API endpoints
+
 ## API Documentation
+
+**Note**: The API endpoints listed below are the planned implementation. Currently, only the root (`/`) and health check (`/health`) endpoints are available.
 
 All endpoints follow the **JSON:API v1.1 specification**:
 - Success responses (200, 201): `{"data": {"type": "...", "id": "...", "attributes": {...}}}`
@@ -202,6 +206,8 @@ flask db migrate -m "description"    # Create migration
 flask db upgrade                     # Apply migrations
 flask db downgrade                   # Revert migration
 ```
+
+**Note**: Models use `TYPE_CHECKING` for backref type hints to prevent IDE circular dependency warnings. See [models.py](apiserver/models.py) for implementation details.
 
 ### Code Formatting
 

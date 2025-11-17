@@ -7,11 +7,7 @@ Used by the Flask CLI and Honcho.
 
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-
-db = SQLAlchemy()
-migrate = Migrate()
+from .extensions import db, migrate
 
 
 def create_app():
@@ -34,6 +30,9 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Import models so Flask-Migrate can detect them
+    from . import models  # noqa: F401
 
     # Register a simple root endpoint
     @app.route("/")
@@ -81,10 +80,12 @@ def make_shell_context():
         $ flask shell
         >>> db
         <SQLAlchemy engine=sqlite:///...>
-        >>> User.query.all()
+        >>> Scribe.query.all()
         [<Scribe john>, <Scribe jane>]
     """
-    return {"db": db}
+    from .models import Scribe, Entry
+
+    return {"db": db, "Scribe": Scribe, "Entry": Entry}
 
 
 if __name__ == "__main__":

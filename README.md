@@ -59,16 +59,25 @@ The API will be available at `http://localhost:5000`
 ### Quick Test
 
 ```bash
-# Register a user
+# Check API health
+curl http://localhost:5000/health
+# Returns: {"data": {"type": "health-status", "id": "1", "attributes": {"status": "healthy"}}}
+
+# Register a user (returns 201 Created)
 curl -X POST http://localhost:5000/api/auth/enlist \
   -H "Content-Type: application/json" \
+  -H "Accept: application/vnd.api+json" \
   -d '{"username": "john", "email": "john@example.com", "password": "pass123"}'
 
-# Create an entry
+# Create an entry (returns 201 Created)
 curl -X POST http://localhost:5000/api/entries \
   -u john:pass123 \
   -H "Content-Type: application/json" \
+  -H "Accept: application/vnd.api+json" \
   -d '{"content": "My first entry"}'
+
+# Get chronicle (returns 200 OK with array)
+curl http://localhost:5000/api/chronicle -u john:pass123
 ```
 
 ## Project Structure
@@ -90,7 +99,11 @@ logbook/
 
 ## API Documentation
 
-All endpoints return JSON with format: `{"success": true/false, "data": {...}}` or `{"success": false, "error": "message"}`
+All endpoints follow the **JSON:API v1.1 specification**:
+- Success responses (200, 201): `{"data": {"type": "...", "id": "...", "attributes": {...}}}`
+- Error responses (4xx, 5xx): `{"errors": [{"status": "...", "title": "...", "detail": "..."}]}`
+- Delete operations (204): Empty response body
+- **HTTP status codes indicate success/failure** - always check the status code first!
 
 ### Authentication
 
@@ -104,7 +117,22 @@ All endpoints return JSON with format: `{"success": true/false, "data": {...}}` 
 ```bash
 curl -X POST http://localhost:5000/api/auth/enlist \
   -H "Content-Type: application/json" \
+  -H "Accept: application/vnd.api+json" \
   -d '{"username": "john", "email": "john@example.com", "password": "pass123"}'
+
+# Response (201 Created):
+# {
+#   "data": {
+#     "type": "scribes",
+#     "id": "1",
+#     "attributes": {
+#       "username": "john",
+#       "email": "john@example.com",
+#       "bio": null,
+#       "createdAt": "2025-01-15T10:30:00Z"
+#     }
+#   }
+# }
 ```
 
 ### Users (Scribes)
@@ -112,7 +140,7 @@ curl -X POST http://localhost:5000/api/auth/enlist \
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/api/scribes/:id` | None | Get user profile |
-| PUT | `/api/scribes/:id` | Basic | Update own profile |
+| PATCH | `/api/scribes/:id` | Basic | Update own profile |
 | DELETE | `/api/scribes/:id` | Basic | Delete own account |
 
 ### Entries (Posts)
@@ -121,18 +149,37 @@ curl -X POST http://localhost:5000/api/auth/enlist \
 |--------|----------|------|-------------|
 | POST | `/api/entries` | Basic | Create entry |
 | GET | `/api/entries/:id` | Optional* | Get single entry |
-| PUT | `/api/entries/:id` | Basic | Update own entry |
+| PATCH | `/api/entries/:id` | Basic | Update own entry |
 | DELETE | `/api/entries/:id` | Basic | Delete own entry |
 | GET | `/api/chronicle` | Basic | Get user's entries |
 
 *Auth required to view private entries
+
+**Note:** PATCH is used for partial updates following JSON:API convention
 
 **Create Entry:**
 ```bash
 curl -X POST http://localhost:5000/api/entries \
   -u john:pass123 \
   -H "Content-Type: application/json" \
-  -d '{"content": "My entry", "visibility": "public"}'
+  -H "Accept: application/vnd.api+json" \
+  -d '{"content": "My first entry", "visibility": "public"}'
+
+# Response (201 Created):
+# {
+#   "data": {
+#     "type": "entries",
+#     "id": "1",
+#     "attributes": {
+#       "content": "My first entry",
+#       "visibility": "public",
+#       "createdAt": "2025-01-15T10:30:00Z",
+#       "updatedAt": "2025-01-15T10:30:00Z",
+#       "scribeId": 1,
+#       "scribeUsername": "john"
+#     }
+#   }
+# }
 ```
 
 ## Development

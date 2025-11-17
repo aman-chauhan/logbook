@@ -40,19 +40,28 @@ def create_app():
     def index():
         """Root endpoint that provides API information."""
         return {
-            "success": True,
             "data": {
-                "message": "Logbook API",
-                "version": "1.0.0",
-                "endpoints": "/api",
-            },
+                "type": "api-info",
+                "id": "1",
+                "attributes": {
+                    "message": "Logbook API",
+                    "version": "1.0.0",
+                    "endpoints": "/api",
+                },
+            }
         }
 
     # Register health check endpoint
     @app.route("/health")
     def health():
         """Health check endpoint for monitoring."""
-        return {"success": True, "data": {"status": "healthy"}}
+        return {
+            "data": {
+                "type": "health-status",
+                "id": "1",
+                "attributes": {"status": "healthy"},
+            }
+        }
 
     return app
 

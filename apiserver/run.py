@@ -14,16 +14,22 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 
-def create_app(config_name=None):
+def create_app():
     """Create and configure the Flask application."""
     app = Flask(__name__)
 
-    # Load configuration
-    if config_name is None:
-        config_name = os.getenv("FLASK_ENV", "default")
-    from config import configurations
+    # Load configuration directly from environment variables
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-me")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+        "SQLALCHEMY_DATABASE_URI", "sqlite:///logbook.db"
+    )
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["JSON_SORT_KEYS"] = False
 
-    app.config.from_object(configurations[config_name])
+    # Testing mode uses in-memory database
+    if os.getenv("TESTING") == "true":
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        app.config["TESTING"] = True
 
     # Initialize extensions
     db.init_app(app)
@@ -51,7 +57,7 @@ def create_app(config_name=None):
     return app
 
 
-app = create_app(os.getenv("FLASK_ENV", "default"))
+app = create_app()
 
 
 @app.shell_context_processor

@@ -42,10 +42,10 @@ pip install -r requirements.txt
 
 # 4. Configure environment
 cp .env.example .env
-# Edit .env to set SECRET_KEY
+# Edit .env and set SECRET_KEY to a strong random value
+# Note: FLASK_APP is already configured in .env.example
 
 # 5. Initialize database
-export FLASK_APP=run.py
 flask db init
 flask db migrate -m "Initial migration"
 flask db upgrade
@@ -75,17 +75,16 @@ curl -X POST http://localhost:5000/api/entries \
 
 ```
 logbook/
-├── app/
+├── apiserver/             # Application package (future)
 │   ├── __init__.py        # Application factory
 │   ├── models.py          # Database models
 │   ├── auth.py            # Auth decorators
-│   └── api/               # API endpoints
-│       ├── auth.py        # Registration/login
-│       ├── users.py       # User management
-│       └── posts.py       # Entry management
+│   ├── api/               # API endpoints
+│   │   ├── auth.py        # Registration/login
+│   │   ├── users.py       # User management
+│   │   └── posts.py       # Entry management
+│   └── run.py             # Entry point with configuration
 ├── migrations/            # Database migrations
-├── config.py              # Configuration
-├── run.py                 # Entry point
 └── requirements.txt       # Dependencies
 ```
 
@@ -141,10 +140,13 @@ curl -X POST http://localhost:5000/api/entries \
 ### Running the Server
 
 ```bash
-honcho start          # Production-like (recommended)
-flask run            # Development server
-flask --debug run    # With debug mode
+honcho start          # Recommended method
+flask run            # Alternative (uses FLASK_DEBUG from .env)
 ```
+
+Debug mode is controlled by the `FLASK_DEBUG` environment variable in `.env`:
+- `FLASK_DEBUG=1` enables auto-reload, debugger, and detailed errors
+- `FLASK_DEBUG=0` disables debug features (use in production)
 
 ### Database Migrations
 
@@ -163,14 +165,48 @@ black --check .      # Check without formatting
 
 ## Configuration
 
-Create a `.env` file (copy from `.env.example`):
+Create a `.env` file from the template:
 
 ```bash
-FLASK_APP=run.py
-FLASK_ENV=development
-SECRET_KEY=your-secret-key-here
-SQLALCHEMY_DATABASE_URI=sqlite:///logbook.db
+cp .env.example .env
 ```
+
+Edit `.env` and configure these variables:
+
+```bash
+# Flask CLI and debug mode
+FLASK_APP=apiserver/run.py
+FLASK_DEBUG=1                              # Set to 0 in production
+
+# Security (CHANGE THIS!)
+SECRET_KEY=your-secret-key-change-this
+
+# Database
+SQLALCHEMY_DATABASE_URI=sqlite:///logbook.db
+
+# Testing (optional)
+# TESTING=true
+```
+
+**Important:**
+- Change `SECRET_KEY` to a strong random value
+- `.env` is for development only - never commit to git
+- Production environments should set these via hosting platform
+
+### Production Deployment
+
+**Do not use `.env` files in production.** Instead, set environment variables through your hosting platform:
+
+```bash
+# Heroku example
+heroku config:set FLASK_DEBUG=0
+heroku config:set SECRET_KEY=<strong-random-key>
+
+# Docker example
+docker run -e FLASK_DEBUG=0 -e SECRET_KEY=xxx ...
+```
+
+See [CLAUDE.md](CLAUDE.md#production-deployment) for detailed production deployment guidance.
 
 ## Contributing
 

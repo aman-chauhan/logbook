@@ -65,7 +65,7 @@ curl http://localhost:5000/
 # Returns: {"data": {"type": "api-info", "id": "1", "attributes": {"message": "Logbook API", "version": "1.0.0", "endpoints": "/api"}}}
 ```
 
-**Note**: The `/api` endpoints (authentication, users, entries) are not yet implemented. Currently only the root and health check endpoints are available.
+**Note**: Phase 1-3 completed! Authentication endpoints (`/api/auth/*`) are now available. User profile and entry endpoints are coming soon.
 
 ## Project Structure
 
@@ -76,12 +76,12 @@ logbook/
 │   ├── extensions.py      # Flask extensions (db, migrate) ✓
 │   ├── models.py          # Database models (Scribe, Entry) ✓
 │   ├── run.py             # Application entry point ✓
-│   ├── auth.py            # Auth decorators (TODO)
-│   └── api/               # API endpoints (TODO)
-│       ├── __init__.py    # API blueprint registration
-│       ├── auth.py        # Registration/login
-│       ├── users.py       # User management
-│       └── posts.py       # Entry management
+│   ├── auth.py            # Auth decorators (@require_auth, @optional_auth) ✓
+│   └── api/               # API endpoints
+│       ├── __init__.py    # API blueprint registration ✓
+│       ├── auth.py        # Registration/login ✓
+│       ├── users.py       # User management (TODO)
+│       └── posts.py       # Entry management (TODO)
 ├── instance/              # Instance folder
 │   └── logbook.db         # SQLite database ✓
 ├── migrations/            # Database migrations ✓
@@ -94,14 +94,17 @@ logbook/
 ```
 
 **Current Status**:
-- ✓ Database models created with salt-based password hashing
+- ✓ Database models created with salt-based password hashing and explicit `__init__` methods
 - ✓ Database initialized with migrations applied
 - ✓ Basic Flask application with health check endpoints
-- TODO: Authentication decorators and API endpoints
+- ✓ Authentication decorators implemented (@require_auth, @optional_auth)
+- ✓ Authentication endpoints (POST /api/auth/enlist, /unlock, /lock)
+- TODO: User profile endpoints (GET, PATCH, DELETE /api/scribes/:id)
+- TODO: Entry endpoints (POST, GET, PATCH, DELETE /api/entries, GET /api/chronicle)
 
 ## API Documentation
 
-**Note**: The API endpoints listed below are the planned implementation. Currently, only the root (`/`) and health check (`/health`) endpoints are available.
+**Note**: Authentication endpoints are now available! User profile and entry endpoints are planned for Phase 4-5.
 
 All endpoints follow the **JSON:API v1.1 specification**:
 - Success responses (200, 201): `{"data": {"type": "...", "id": "...", "attributes": {...}}}`
@@ -207,7 +210,7 @@ flask db upgrade                     # Apply migrations
 flask db downgrade                   # Revert migration
 ```
 
-**Note**: Models use `TYPE_CHECKING` for backref type hints to prevent IDE circular dependency warnings. See [models.py](apiserver/models.py) for implementation details.
+**Note**: Models use explicit `__init__` methods for clarity and IDE compatibility, plus `TYPE_CHECKING` for backref type hints to prevent circular dependency warnings. See [models.py](apiserver/models.py) for implementation details.
 
 ### Code Formatting
 

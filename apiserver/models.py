@@ -41,6 +41,22 @@ class Scribe(db.Model):
         "Entry", backref="scribe", lazy="dynamic", cascade="all, delete-orphan"
     )
 
+    def __init__(self, username, email, bio=None):
+        """Initialize a new Scribe instance.
+
+        Args:
+            username (str): Unique username for the scribe
+            email (str): Unique email address for the scribe
+            bio (str, optional): Short biography. Defaults to None.
+
+        Note:
+            Password must be set separately using set_password() method.
+            The id, created_at, and updated_at fields are managed by SQLAlchemy.
+        """
+        self.username = username
+        self.email = email
+        self.bio = bio
+
     def set_password(self, password):
         """Hash and set the scribe's password.
 
@@ -121,6 +137,22 @@ class Entry(db.Model):
     # Type hint for backref relationship (created by Scribe.entries relationship)
     if TYPE_CHECKING:
         scribe: "Scribe"
+
+    def __init__(self, content, scribe_id, visibility="public"):
+        """Initialize a new Entry instance.
+
+        Args:
+            content (str): The text content of the entry
+            scribe_id (int): The ID of the scribe who created this entry
+            visibility (str, optional): Visibility setting ('public' or 'private').
+                                       Defaults to 'public'.
+
+        Note:
+            The id, created_at, and updated_at fields are managed by SQLAlchemy.
+        """
+        self.content = content
+        self.scribe_id = scribe_id
+        self.visibility = visibility
 
     def to_jsonapi(self):
         """Return entry data in JSON:API format.

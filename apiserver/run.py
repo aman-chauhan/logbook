@@ -34,6 +34,11 @@ def create_app():
     # Import models so Flask-Migrate can detect them
     from . import models  # noqa: F401
 
+    # Register API blueprint
+    from .api import api_bp
+
+    app.register_blueprint(api_bp, url_prefix="/api")
+
     # Register a simple root endpoint
     @app.route("/")
     def index():

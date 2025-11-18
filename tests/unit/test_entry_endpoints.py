@@ -640,15 +640,19 @@ class TestGetChronicleEndpoint:
 
         # Create entries with explicit created_at timestamps to ensure different timestamps
         base_time = datetime.utcnow()
-        entry1 = Entry(content="First", scribe_id=sample_scribe.id, visibility="public", created_at=base_time)
+        
+        entry1 = Entry(content="First", scribe_id=sample_scribe.id, visibility="public")
+        entry1.created_at = base_time
         db.session.add(entry1)
         db.session.commit()
 
-        entry2 = Entry(content="Second", scribe_id=sample_scribe.id, visibility="public", created_at=base_time + timedelta(seconds=1))
+        entry2 = Entry(content="Second", scribe_id=sample_scribe.id, visibility="public")
+        entry2.created_at = base_time + timedelta(seconds=1)
         db.session.add(entry2)
         db.session.commit()
 
-        entry3 = Entry(content="Third", scribe_id=sample_scribe.id, visibility="public", created_at=base_time + timedelta(seconds=2))
+        entry3 = Entry(content="Third", scribe_id=sample_scribe.id, visibility="public")
+        entry3.created_at = base_time + timedelta(seconds=2)
         db.session.add(entry3)
         db.session.commit()
 

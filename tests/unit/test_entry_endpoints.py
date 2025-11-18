@@ -544,9 +544,9 @@ class TestGetChronicleEndpoint:
     def test_get_chronicle_success(self, client, sample_scribe, auth_headers, entry_factory):
         """Test successfully retrieving scribe's chronicle."""
         # Create multiple entries
-        entry1 = entry_factory(sample_scribe.id, content="First entry")
-        entry2 = entry_factory(sample_scribe.id, content="Second entry")
-        entry3 = entry_factory(sample_scribe.id, content="Third entry")
+        entry_factory(sample_scribe.id, content="First entry")
+        entry_factory(sample_scribe.id, content="Second entry")
+        entry_factory(sample_scribe.id, content="Third entry")
 
         response = client.get("/api/chronicle", headers=auth_headers)
 
@@ -636,22 +636,19 @@ class TestGetChronicleEndpoint:
 
     def test_get_chronicle_chronological_order(self, client, db, sample_scribe, auth_headers):
         """Test that chronicle returns entries in chronological order (newest first)."""
-        import time
+        from datetime import datetime, timedelta
 
-        # Create entries with slight time delays to ensure different timestamps
-        entry1 = Entry(content="First", scribe_id=sample_scribe.id, visibility="public")
+        # Create entries with explicit created_at timestamps to ensure different timestamps
+        base_time = datetime.utcnow()
+        entry1 = Entry(content="First", scribe_id=sample_scribe.id, visibility="public", created_at=base_time)
         db.session.add(entry1)
         db.session.commit()
 
-        time.sleep(0.01)
-
-        entry2 = Entry(content="Second", scribe_id=sample_scribe.id, visibility="public")
+        entry2 = Entry(content="Second", scribe_id=sample_scribe.id, visibility="public", created_at=base_time + timedelta(seconds=1))
         db.session.add(entry2)
         db.session.commit()
 
-        time.sleep(0.01)
-
-        entry3 = Entry(content="Third", scribe_id=sample_scribe.id, visibility="public")
+        entry3 = Entry(content="Third", scribe_id=sample_scribe.id, visibility="public", created_at=base_time + timedelta(seconds=2))
         db.session.add(entry3)
         db.session.commit()
 

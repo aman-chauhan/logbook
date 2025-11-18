@@ -228,7 +228,7 @@ class TestUpdateScribeEndpoint:
 
     def test_update_scribe_duplicate_email(self, client, db, sample_scribe, auth_headers, scribe_factory):
         """Test updating to an existing email returns 409."""
-        other_scribe = scribe_factory(email="taken@example.com")
+        scribe_factory(email="taken@example.com")
 
         response = client.patch(
             f"/api/scribes/{sample_scribe.id}",

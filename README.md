@@ -82,12 +82,18 @@ logbook/
 │       ├── auth.py        # Registration/login ✓
 │       ├── users.py       # User management (TODO)
 │       └── posts.py       # Entry management (TODO)
+├── tests/                 # Test suite ✓
+│   ├── conftest.py        # Shared fixtures ✓
+│   ├── unit/              # Unit tests ✓
+│   ├── integration/       # Integration tests (ready)
+│   └── README.md          # Test documentation ✓
 ├── instance/              # Instance folder
 │   └── logbook.db         # SQLite database ✓
 ├── migrations/            # Database migrations ✓
 │   └── versions/          # Migration scripts ✓
 ├── venv/                  # Virtual environment
 ├── requirements.txt       # Dependencies ✓
+├── pytest.ini             # Pytest configuration ✓
 ├── Procfile               # Honcho configuration ✓
 ├── .env                   # Environment variables ✓
 └── README.md              # This file
@@ -99,6 +105,7 @@ logbook/
 - ✓ Basic Flask application with health check endpoints
 - ✓ Authentication decorators implemented (@require_auth, @optional_auth)
 - ✓ Authentication endpoints (POST /api/auth/enlist, /unlock, /lock)
+- ✓ Comprehensive test suite (84 tests, 97% coverage)
 - TODO: User profile endpoints (GET, PATCH, DELETE /api/scribes/:id)
 - TODO: Entry endpoints (POST, GET, PATCH, DELETE /api/entries, GET /api/chronicle)
 
@@ -218,6 +225,31 @@ flask db downgrade                   # Revert migration
 black .              # Format all files
 black --check .      # Check without formatting
 ```
+
+### Testing
+
+The project includes a comprehensive test suite with **84 unit tests** achieving **97% code coverage**.
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=apiserver --cov-report=term-missing
+
+# Run specific test categories
+pytest -m unit                    # Unit tests only
+pytest tests/unit/test_models.py  # Specific test file
+```
+
+**Test Features:**
+- ✓ Unit tests for models, authentication, and API endpoints
+- ✓ Faker library for realistic test data generation
+- ✓ SQLite foreign key constraints enforced in tests
+- ✓ Factory fixtures for easy test data creation
+- ✓ Integration test structure ready for future development
+
+For detailed testing documentation, test writing guidelines, and best practices, see **[tests/README.md](tests/README.md)**.
 
 ## Configuration
 

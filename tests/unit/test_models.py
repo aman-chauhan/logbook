@@ -285,21 +285,28 @@ class TestEntryModel:
         assert repr(sample_entry) == expected
 
     @pytest.mark.unit
-    def test_entry_updated_at_changes(self, db, sample_entry):
-        """Test that updated_at changes when entry is modified."""
-        import time
+    def test_entry_updated_at_field(self, db, sample_entry):
+        """Test that updated_at field exists and can be modified.
 
-        original_updated_at = sample_entry.updated_at
+        Note: SQLite in-memory databases don't reliably trigger automatic
+        timestamp updates on UPDATE operations, so we test explicit updates.
+        """
+        from datetime import datetime
 
-        # Wait a bit and update
-        time.sleep(0.01)
+        # Verify updated_at exists and is a datetime
+        assert isinstance(sample_entry.updated_at, datetime)
+
+        # Test that we can explicitly update the timestamp
+        # Use naive datetime to match what SQLite stores
+        new_timestamp = datetime.utcnow()
+        sample_entry.updated_at = new_timestamp
         sample_entry.content = "Updated content"
         db.session.commit()
-
-        # Note: In SQLite with in-memory DB, onupdate might not always trigger
-        # This test documents the expected behavior
-        # For a more reliable test, we'd need to manually set updated_at
         db.session.refresh(sample_entry)
+
+        # Verify the field was updated
+        assert sample_entry.updated_at == new_timestamp
+        assert sample_entry.content == "Updated content"
 
     @pytest.mark.unit
     def test_entry_requires_content(self, db, sample_scribe):

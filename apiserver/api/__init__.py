@@ -13,4 +13,4 @@ api_bp = Blueprint("api", __name__)
 
 # Import routes to register them with the blueprint
 # This must be done after creating the blueprint to avoid circular imports
-from . import auth
+from . import auth, users, posts

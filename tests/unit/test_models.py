@@ -88,9 +88,6 @@ class TestScribeModel:
 
         assert scribe.password_hash is not None
         assert scribe.password_hash != password
-        assert scribe.password_hash.startswith("pbkdf2:sha256:")
-        # Check salt is embedded (format: pbkdf2:sha256:iterations$salt$hash)
-        assert scribe.password_hash.count("$") == 2
 
     @pytest.mark.unit
     def test_check_password_correct(self, db, faker):

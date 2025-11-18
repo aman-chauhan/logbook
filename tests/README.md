@@ -158,8 +158,8 @@ Located in `tests/conftest.py`, these fixtures are available to all tests:
 ### Data Fixtures
 
 - **`sample_scribe`**: Pre-created test user
-  - Username: `testuser`
-  - Email: `test@example.com`
+  - Username: randomly generated (using Faker)
+  - Email: randomly generated (using Faker)
   - Password: `testpass123`
 
 - **`sample_entry`**: Pre-created test entry

@@ -93,7 +93,7 @@ class TestGetScribeEndpoint:
 class TestUpdateScribeEndpoint:
     """Test suite for PATCH /api/scribes/<id> endpoint."""
 
-    def test_update_scribe_email_success(self, client, sample_scribe, auth_headers):
+    def test_update_scribe_email_success(self, client, sample_scribe, auth_headers, db):
         """Test successfully updating scribe email."""
         new_email = "newemail@example.com"
         response = client.patch(
@@ -107,7 +107,6 @@ class TestUpdateScribeEndpoint:
         assert data["data"]["attributes"]["email"] == new_email
 
         # Verify database was updated
-        from apiserver.extensions import db
         db.session.expire_all()
         updated_scribe = Scribe.query.get(sample_scribe.id)
         assert updated_scribe.email == new_email

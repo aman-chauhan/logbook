@@ -17,99 +17,114 @@ class TestScribeModel:
     """Test suite for Scribe model."""
 
     @pytest.mark.unit
-    def test_scribe_creation(self, db):
+    def test_scribe_creation(self, db, faker):
         """Test creating a new scribe."""
-        scribe = Scribe(username="alice", email="alice@example.com", bio="Test bio")
-        scribe.set_password("testpass")  # Password is required
+        username = faker.user_name()
+        email = faker.email()
+        bio = faker.sentence()
+
+        scribe = Scribe(username=username, email=email, bio=bio)
+        scribe.set_password("testpass")
         db.session.add(scribe)
         db.session.commit()
 
         assert scribe.id is not None
-        assert scribe.username == "alice"
-        assert scribe.email == "alice@example.com"
-        assert scribe.bio == "Test bio"
+        assert scribe.username == username
+        assert scribe.email == email
+        assert scribe.bio == bio
         assert scribe.created_at is not None
         assert scribe.updated_at is not None
         assert isinstance(scribe.created_at, datetime)
         assert isinstance(scribe.updated_at, datetime)
 
     @pytest.mark.unit
-    def test_scribe_creation_without_bio(self, db):
+    def test_scribe_creation_without_bio(self, db, faker):
         """Test creating a scribe without bio (optional field)."""
-        scribe = Scribe(username="bob", email="bob@example.com")
-        scribe.set_password("testpass")  # Password is required
+        username = faker.user_name()
+        email = faker.email()
+
+        scribe = Scribe(username=username, email=email)
+        scribe.set_password("testpass")
         db.session.add(scribe)
         db.session.commit()
 
         assert scribe.id is not None
-        assert scribe.username == "bob"
-        assert scribe.email == "bob@example.com"
+        assert scribe.username == username
+        assert scribe.email == email
         assert scribe.bio is None
 
     @pytest.mark.unit
-    def test_scribe_username_unique_constraint(self, db, sample_scribe):
+    def test_scribe_username_unique_constraint(self, db, sample_scribe, faker):
         """Test that username must be unique."""
         from sqlalchemy.exc import IntegrityError
 
         # Try to create scribe with duplicate username
-        duplicate = Scribe(username="testuser", email="different@example.com")
+        duplicate = Scribe(username=sample_scribe.username, email=faker.email())
+        duplicate.set_password("testpass")
         db.session.add(duplicate)
 
         with pytest.raises(IntegrityError):
             db.session.commit()
 
     @pytest.mark.unit
-    def test_scribe_email_unique_constraint(self, db, sample_scribe):
+    def test_scribe_email_unique_constraint(self, db, sample_scribe, faker):
         """Test that email must be unique."""
         from sqlalchemy.exc import IntegrityError
 
         # Try to create scribe with duplicate email
-        duplicate = Scribe(username="differentuser", email="test@example.com")
+        duplicate = Scribe(username=faker.user_name(), email=sample_scribe.email)
+        duplicate.set_password("testpass")
         db.session.add(duplicate)
 
         with pytest.raises(IntegrityError):
             db.session.commit()
 
     @pytest.mark.unit
-    def test_set_password(self, db):
+    def test_set_password(self, db, faker):
         """Test password hashing."""
-        scribe = Scribe(username="charlie", email="charlie@example.com")
-        scribe.set_password("mysecret")
+        scribe = Scribe(username=faker.user_name(), email=faker.email())
+        password = faker.password()
+        scribe.set_password(password)
 
         assert scribe.password_hash is not None
-        assert scribe.password_hash != "mysecret"
+        assert scribe.password_hash != password
         assert scribe.password_hash.startswith("pbkdf2:sha256:")
         # Check salt is embedded (format: pbkdf2:sha256:iterations$salt$hash)
         assert scribe.password_hash.count("$") == 2
 
     @pytest.mark.unit
-    def test_check_password_correct(self, db):
+    def test_check_password_correct(self, db, faker):
         """Test password verification with correct password."""
-        scribe = Scribe(username="diana", email="diana@example.com")
-        scribe.set_password("correctpassword")
+        scribe = Scribe(username=faker.user_name(), email=faker.email())
+        password = faker.password()
+        scribe.set_password(password)
         db.session.add(scribe)
         db.session.commit()
 
-        assert scribe.check_password("correctpassword") is True
+        assert scribe.check_password(password) is True
 
     @pytest.mark.unit
-    def test_check_password_incorrect(self, db):
+    def test_check_password_incorrect(self, db, faker):
         """Test password verification with incorrect password."""
-        scribe = Scribe(username="eve", email="eve@example.com")
-        scribe.set_password("correctpassword")
+        scribe = Scribe(username=faker.user_name(), email=faker.email())
+        correct_password = faker.password()
+        wrong_password = faker.password()
+        scribe.set_password(correct_password)
         db.session.add(scribe)
         db.session.commit()
 
-        assert scribe.check_password("wrongpassword") is False
+        assert scribe.check_password(wrong_password) is False
 
     @pytest.mark.unit
-    def test_password_salt_is_unique(self, db):
+    def test_password_salt_is_unique(self, db, faker):
         """Test that each password gets a unique salt."""
-        scribe1 = Scribe(username="frank", email="frank@example.com")
-        scribe1.set_password("samepassword")
+        same_password = faker.password()
 
-        scribe2 = Scribe(username="grace", email="grace@example.com")
-        scribe2.set_password("samepassword")
+        scribe1 = Scribe(username=faker.user_name(), email=faker.email())
+        scribe1.set_password(same_password)
+
+        scribe2 = Scribe(username=faker.user_name(), email=faker.email())
+        scribe2.set_password(same_password)
 
         # Same password should produce different hashes due to different salts
         assert scribe1.password_hash != scribe2.password_hash
@@ -124,8 +139,8 @@ class TestScribeModel:
         assert "attributes" in result
 
         attrs = result["attributes"]
-        assert attrs["username"] == "testuser"
-        assert attrs["email"] == "test@example.com"
+        assert attrs["username"] == sample_scribe.username
+        assert attrs["email"] == sample_scribe.email
         assert "createdAt" in attrs
         assert "updatedAt" in attrs
         assert attrs["createdAt"].endswith("Z")  # ISO format with Z
@@ -144,17 +159,14 @@ class TestScribeModel:
     @pytest.mark.unit
     def test_scribe_repr(self, db, sample_scribe):
         """Test string representation of Scribe."""
-        assert repr(sample_scribe) == "<Scribe testuser>"
+        assert repr(sample_scribe) == f"<Scribe {sample_scribe.username}>"
 
     @pytest.mark.unit
-    def test_scribe_entries_relationship(self, db, sample_scribe):
+    def test_scribe_entries_relationship(self, db, sample_scribe, entry_factory):
         """Test relationship between Scribe and Entry."""
         # Create entries for the scribe
-        entry1 = Entry(content="First entry", scribe_id=sample_scribe.id)
-        entry2 = Entry(content="Second entry", scribe_id=sample_scribe.id)
-        db.session.add(entry1)
-        db.session.add(entry2)
-        db.session.commit()
+        entry1 = entry_factory(scribe_id=sample_scribe.id)
+        entry2 = entry_factory(scribe_id=sample_scribe.id)
 
         # Test relationship
         assert sample_scribe.entries.count() == 2
@@ -162,14 +174,11 @@ class TestScribeModel:
         assert entry2 in sample_scribe.entries.all()
 
     @pytest.mark.unit
-    def test_scribe_cascade_delete(self, db, sample_scribe):
+    def test_scribe_cascade_delete(self, db, sample_scribe, entry_factory):
         """Test that deleting a scribe deletes their entries (cascade)."""
         # Create entries for the scribe
-        entry1 = Entry(content="First entry", scribe_id=sample_scribe.id)
-        entry2 = Entry(content="Second entry", scribe_id=sample_scribe.id)
-        db.session.add(entry1)
-        db.session.add(entry2)
-        db.session.commit()
+        entry1 = entry_factory(scribe_id=sample_scribe.id)
+        entry2 = entry_factory(scribe_id=sample_scribe.id)
 
         entry1_id = entry1.id
         entry2_id = entry2.id
@@ -179,18 +188,20 @@ class TestScribeModel:
         db.session.commit()
 
         # Verify entries are also deleted
-        assert Entry.query.get(entry1_id) is None
-        assert Entry.query.get(entry2_id) is None
+        assert db.session.get(Entry, entry1_id) is None
+        assert db.session.get(Entry, entry2_id) is None
 
 
 class TestEntryModel:
     """Test suite for Entry model."""
 
     @pytest.mark.unit
-    def test_entry_creation_public(self, db, sample_scribe):
+    def test_entry_creation_public(self, db, sample_scribe, faker):
         """Test creating a public entry."""
+        content = faker.text(max_nb_chars=200)
+
         entry = Entry(
-            content="My first entry",
+            content=content,
             scribe_id=sample_scribe.id,
             visibility="public"
         )
@@ -198,7 +209,7 @@ class TestEntryModel:
         db.session.commit()
 
         assert entry.id is not None
-        assert entry.content == "My first entry"
+        assert entry.content == content
         assert entry.scribe_id == sample_scribe.id
         assert entry.visibility == "public"
         assert entry.created_at is not None
@@ -207,10 +218,12 @@ class TestEntryModel:
         assert isinstance(entry.updated_at, datetime)
 
     @pytest.mark.unit
-    def test_entry_creation_private(self, db, sample_scribe):
+    def test_entry_creation_private(self, db, sample_scribe, faker):
         """Test creating a private entry."""
+        content = faker.text(max_nb_chars=200)
+
         entry = Entry(
-            content="My private thoughts",
+            content=content,
             scribe_id=sample_scribe.id,
             visibility="private"
         )
@@ -220,30 +233,32 @@ class TestEntryModel:
         assert entry.visibility == "private"
 
     @pytest.mark.unit
-    def test_entry_default_visibility(self, db, sample_scribe):
+    def test_entry_default_visibility(self, db, sample_scribe, faker):
         """Test default visibility is public."""
-        entry = Entry(content="Entry with default visibility", scribe_id=sample_scribe.id)
+        entry = Entry(content=faker.text(), scribe_id=sample_scribe.id)
         db.session.add(entry)
         db.session.commit()
 
         assert entry.visibility == "public"
 
     @pytest.mark.unit
-    def test_entry_scribe_relationship(self, db, sample_scribe):
+    def test_entry_scribe_relationship(self, db, sample_scribe, faker):
         """Test backref relationship from Entry to Scribe."""
-        entry = Entry(content="Test entry", scribe_id=sample_scribe.id)
+        entry = Entry(content=faker.text(), scribe_id=sample_scribe.id)
         db.session.add(entry)
         db.session.commit()
 
         # Test backref
         assert entry.scribe == sample_scribe
-        assert entry.scribe.username == "testuser"
+        assert entry.scribe.username == sample_scribe.username
 
     @pytest.mark.unit
-    def test_entry_to_jsonapi(self, db, sample_scribe):
+    def test_entry_to_jsonapi(self, db, sample_scribe, faker):
         """Test JSON:API serialization."""
+        content = faker.text(max_nb_chars=200)
+
         entry = Entry(
-            content="Test content",
+            content=content,
             scribe_id=sample_scribe.id,
             visibility="public"
         )
@@ -257,10 +272,10 @@ class TestEntryModel:
         assert "attributes" in result
 
         attrs = result["attributes"]
-        assert attrs["content"] == "Test content"
+        assert attrs["content"] == content
         assert attrs["visibility"] == "public"
         assert attrs["scribeId"] == sample_scribe.id
-        assert attrs["scribeUsername"] == "testuser"
+        assert attrs["scribeUsername"] == sample_scribe.username
         assert "createdAt" in attrs
         assert "updatedAt" in attrs
         assert attrs["createdAt"].endswith("Z")
@@ -301,46 +316,37 @@ class TestEntryModel:
             db.session.commit()
 
     @pytest.mark.unit
-    def test_entry_requires_scribe_id(self, db):
+    def test_entry_requires_scribe_id(self, db, faker):
         """Test that scribe_id is required."""
         from sqlalchemy.exc import IntegrityError
 
-        entry = Entry(content="Orphan entry", scribe_id=None)
+        entry = Entry(content=faker.text(), scribe_id=None)
         db.session.add(entry)
 
         with pytest.raises(IntegrityError):
             db.session.commit()
 
     @pytest.mark.unit
-    def test_entry_foreign_key_constraint(self, db):
+    def test_entry_foreign_key_constraint(self, db, faker):
         """Test that scribe_id must reference an existing scribe.
 
-        Note: SQLite doesn't enforce foreign key constraints by default,
-        even with PRAGMA foreign_keys=ON in test environment.
-        This test documents expected behavior in production databases (PostgreSQL, MySQL).
+        This test verifies that foreign key constraints are properly enforced.
         """
-        # For now, just test that we can't violate the logical constraint
-        # by checking that the scribe doesn't exist
-        entry = Entry(content="Entry with invalid scribe", scribe_id=99999)
+        from sqlalchemy.exc import IntegrityError
 
-        # Verify that the referenced scribe doesn't exist
-        assert Scribe.query.get(99999) is None
-
-        # In a production database with FK constraints, this would fail
-        # For SQLite in tests, we document the expected constraint
+        # Try to create entry with non-existent scribe_id
+        entry = Entry(content=faker.text(), scribe_id=99999)
         db.session.add(entry)
-        # This would raise IntegrityError in production databases
-        # db.session.commit()  # Commented out as SQLite allows this
+
+        # Should raise IntegrityError due to foreign key constraint
+        with pytest.raises(IntegrityError):
+            db.session.commit()
 
     @pytest.mark.unit
-    def test_multiple_entries_same_scribe(self, db, sample_scribe):
+    def test_multiple_entries_same_scribe(self, db, sample_scribe, entry_factory):
         """Test that a scribe can have multiple entries."""
-        entries = [
-            Entry(content=f"Entry {i}", scribe_id=sample_scribe.id)
-            for i in range(5)
-        ]
-        for entry in entries:
-            db.session.add(entry)
-        db.session.commit()
+        entries = [entry_factory(scribe_id=sample_scribe.id) for _ in range(5)]
 
         assert sample_scribe.entries.count() == 5
+        for entry in entries:
+            assert entry in sample_scribe.entries.all()

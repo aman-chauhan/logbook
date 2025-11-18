@@ -26,7 +26,9 @@ class TestRequireAuthDecorator:
             return jsonify({"username": current_scribe.username})
 
         # Make request with valid credentials
-        credentials = base64.b64encode(b"testuser:testpass123").decode("utf-8")
+        credentials = base64.b64encode(
+            f"{sample_scribe.username}:testpass123".encode()
+        ).decode("utf-8")
         response = client.get(
             "/test-protected",
             headers={"Authorization": f"Basic {credentials}"}
@@ -34,7 +36,7 @@ class TestRequireAuthDecorator:
 
         assert response.status_code == 200
         data = response.get_json()
-        assert data["username"] == "testuser"
+        assert data["username"] == sample_scribe.username
 
     @pytest.mark.unit
     def test_require_auth_without_credentials(self, app, client):
@@ -114,7 +116,9 @@ class TestRequireAuthDecorator:
             })
 
         # Make request with valid credentials
-        credentials = base64.b64encode(b"testuser:testpass123").decode("utf-8")
+        credentials = base64.b64encode(
+            f"{sample_scribe.username}:testpass123".encode()
+        ).decode("utf-8")
         response = client.get(
             "/test-scribe-info",
             headers={"Authorization": f"Basic {credentials}"}
@@ -123,8 +127,8 @@ class TestRequireAuthDecorator:
         assert response.status_code == 200
         data = response.get_json()
         assert data["id"] == sample_scribe.id
-        assert data["username"] == "testuser"
-        assert data["email"] == "test@example.com"
+        assert data["username"] == sample_scribe.username
+        assert data["email"] == sample_scribe.email
 
     @pytest.mark.unit
     def test_require_auth_with_malformed_header(self, app, client):
@@ -172,7 +176,9 @@ class TestOptionalAuthDecorator:
             return jsonify({"authenticated": False})
 
         # Make request with valid credentials
-        credentials = base64.b64encode(b"testuser:testpass123").decode("utf-8")
+        credentials = base64.b64encode(
+            f"{sample_scribe.username}:testpass123".encode()
+        ).decode("utf-8")
         response = client.get(
             "/test-optional",
             headers={"Authorization": f"Basic {credentials}"}
@@ -181,7 +187,7 @@ class TestOptionalAuthDecorator:
         assert response.status_code == 200
         data = response.get_json()
         assert data["authenticated"] is True
-        assert data["username"] == "testuser"
+        assert data["username"] == sample_scribe.username
 
     @pytest.mark.unit
     def test_optional_auth_without_credentials(self, app, client):
@@ -245,7 +251,9 @@ class TestOptionalAuthDecorator:
         assert "user" not in data
 
         # Test with auth
-        credentials = base64.b64encode(b"testuser:testpass123").decode("utf-8")
+        credentials = base64.b64encode(
+            f"{sample_scribe.username}:testpass123".encode()
+        ).decode("utf-8")
         response = client.get(
             "/test-content",
             headers={"Authorization": f"Basic {credentials}"}
@@ -253,7 +261,7 @@ class TestOptionalAuthDecorator:
         assert response.status_code == 200
         data = response.get_json()
         assert data["message"] == "Welcome back!"
-        assert data["user"] == "testuser"
+        assert data["user"] == sample_scribe.username
 
     @pytest.mark.unit
     def test_optional_auth_with_invalid_username(self, app, client, sample_scribe):

@@ -9,17 +9,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.12']
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
         cache: 'pip'
 
     - name: Install dependencies
@@ -46,12 +43,6 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: Generate coverage badge
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      run: |
-        COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(round(float(root.attrib['line-rate']) * 100, 2))")
-        echo "Coverage: $COVERAGE%"
-        echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
 
     - name: Archive coverage reports
       uses: actions/upload-artifact@v4

@@ -68,7 +68,7 @@ curl http://localhost:5000/
 # Returns: {"data": {"type": "api-info", "id": "1", "attributes": {"message": "Logbook API", "version": "1.0.0", "endpoints": "/api"}}}
 ```
 
-**Note**: Phase 1-3 completed! Authentication endpoints (`/api/auth/*`) are now available. User profile and entry endpoints are coming soon.
+**Note**: All core features are implemented! Authentication, user profile, and entry endpoints are fully functional.
 
 ## Project Structure
 
@@ -83,12 +83,12 @@ logbook/
 │   └── api/               # API endpoints
 │       ├── __init__.py    # API blueprint registration ✓
 │       ├── auth.py        # Registration/login ✓
-│       ├── users.py       # User management (TODO)
-│       └── posts.py       # Entry management (TODO)
+│       ├── users.py       # User management ✓
+│       └── posts.py       # Entry management ✓
 ├── tests/                 # Test suite ✓
 │   ├── conftest.py        # Shared fixtures ✓
 │   ├── unit/              # Unit tests ✓
-│   ├── integration/       # Integration tests (ready)
+│   ├── integration/       # Integration tests ✓
 │   └── README.md          # Test documentation ✓
 ├── instance/              # Instance folder
 │   └── logbook.db         # SQLite database ✓
@@ -108,13 +108,13 @@ logbook/
 - ✓ Basic Flask application with health check endpoints
 - ✓ Authentication decorators implemented (@require_auth, @optional_auth)
 - ✓ Authentication endpoints (POST /api/auth/enlist, /unlock, /lock)
-- ✓ Comprehensive test suite (84 tests, 97% coverage)
-- TODO: User profile endpoints (GET, PATCH, DELETE /api/scribes/:id)
-- TODO: Entry endpoints (POST, GET, PATCH, DELETE /api/entries, GET /api/chronicle)
+- ✓ User profile endpoints (GET, PATCH, DELETE /api/scribes/:id)
+- ✓ Entry endpoints (POST, GET, PATCH, DELETE /api/entries, GET /api/chronicle)
+- ✓ Comprehensive test suite with unit and integration tests (97% coverage)
 
 ## API Documentation
 
-**Note**: Authentication endpoints are now available! User profile and entry endpoints are planned for Phase 4-5.
+All endpoints are fully implemented and tested.
 
 All endpoints follow the **JSON:API v1.1 specification**:
 - Success responses (200, 201): `{"data": {"type": "...", "id": "...", "attributes": {...}}}`
@@ -231,7 +231,7 @@ black --check .      # Check without formatting
 
 ### Testing
 
-The project includes a comprehensive test suite with **84 unit tests** achieving **97% code coverage**.
+The project includes a comprehensive test suite with unit and integration tests achieving **97% code coverage**.
 
 ```bash
 # Run all tests
@@ -242,15 +242,16 @@ pytest --cov=apiserver --cov-report=term-missing
 
 # Run specific test categories
 pytest -m unit                    # Unit tests only
+pytest -m integration             # Integration tests only
 pytest tests/unit/test_models.py  # Specific test file
 ```
 
 **Test Features:**
 - ✓ Unit tests for models, authentication, and API endpoints
+- ✓ Integration tests for complete user workflows
 - ✓ Faker library for realistic test data generation
 - ✓ SQLite foreign key constraints enforced in tests
 - ✓ Factory fixtures for easy test data creation
-- ✓ Integration test structure ready for future development
 
 For detailed testing documentation, test writing guidelines, and best practices, see **[tests/README.md](tests/README.md)**.
 

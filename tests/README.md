@@ -163,7 +163,7 @@ Located in `tests/conftest.py`, these fixtures are available to all tests:
   - Password: `testpass123`
 
 - **`sample_entry`**: Pre-created test entry
-  - Content: "This is a test entry"
+  - Content: Randomly generated text (using Faker)
   - Visibility: public
   - Belongs to `sample_scribe`
 

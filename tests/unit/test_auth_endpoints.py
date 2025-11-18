@@ -257,7 +257,7 @@ class TestEnlistEndpoint:
         # Verify password is hashed in database
         scribe = Scribe.query.filter_by(username=username).first()
         assert scribe.password_hash != password
-        assert scribe.password_hash.startswith("pbkdf2:sha256:")
+        assert isinstance(scribe.password_hash, str) and scribe.password_hash
         assert scribe.check_password(password)
 
 

@@ -126,11 +126,10 @@ def test_authentication_persists_across_requests(client, faker):
     email = faker.email()
     password = faker.password(length=12)
 
-    response = client.post(
+    client.post(
         "/api/auth/enlist",
         json={"username": username, "email": email, "password": password},
     )
-    scribe_id = response.get_json()["data"]["id"]
 
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'

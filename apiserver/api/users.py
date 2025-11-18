@@ -153,41 +153,41 @@ def update_scribe(current_scribe, scribe_id):
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        # Email must be unique
-        existing_email = Scribe.query.filter_by(email=data.get("email")).first()
+        # Only check for email uniqueness if "email" is in the data
+        if "email" in data:
+            existing_email = Scribe.query.filter_by(email=data.get("email")).first()
 
-        if existing_email and existing_email.id != scribe_id:
-            return (
-                jsonify(
-                    {
-                        "errors": [
-                            {
-                                "status": "409",
-                                "title": "Email Already Exists",
-                                "detail": f"The email '{data['email']}' is already registered to another scribe",
-                            }
-                        ]
-                    }
-                ),
-                409,
-            )
-        else:
-            # Generic integrity error
-            return (
-                jsonify(
-                    {
-                        "errors": [
-                            {
-                                "status": "409",
-                                "title": "Conflict",
-                                "detail": "Unable to update profile due to a data conflict",
-                            }
-                        ]
-                    }
-                ),
-                409,
-            )
+            if existing_email and existing_email.id != scribe_id:
+                return (
+                    jsonify(
+                        {
+                            "errors": [
+                                {
+                                    "status": "409",
+                                    "title": "Email Already Exists",
+                                    "detail": f"The email '{data['email']}' is already registered to another scribe",
+                                }
+                            ]
+                        }
+                    ),
+                    409,
+                )
 
+        # Generic integrity error
+        return (
+            jsonify(
+                {
+                    "errors": [
+                        {
+                            "status": "409",
+                            "title": "Conflict",
+                            "detail": "Unable to update profile due to a data conflict",
+                        }
+                    ]
+                }
+            ),
+            409,
+        )
     return jsonify({"data": scribe.to_jsonapi()}), 200
 
 

@@ -1,5 +1,8 @@
 # Logbook
 
+[![Tests](https://github.com/aman-chauhan/logbook/actions/workflows/test.yml/badge.svg)](https://github.com/aman-chauhan/logbook/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/aman-chauhan/logbook/branch/main/graph/badge.svg)](https://codecov.io/gh/aman-chauhan/logbook)
+
 A lightweight REST API for social journaling built with Flask and SQLite. Logbook provides a clean, educational codebase demonstrating core API design patterns and CRUD operations.
 
 ## Overview

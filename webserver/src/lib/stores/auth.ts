@@ -3,7 +3,7 @@
  * Stores credentials in memory and persists to localStorage.
  */
 
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { Scribe } from '$lib/api';
 
@@ -35,7 +35,8 @@ function createAuthStore() {
 		}
 	}
 
-	const { subscribe, set, update } = writable<AuthState>(initialState);
+	const store = writable<AuthState>(initialState);
+	const { subscribe, set, update } = store;
 
 	return {
 		subscribe,
@@ -96,13 +97,11 @@ function createAuthStore() {
 		 * Get current auth credentials
 		 */
 		getCredentials: (): { username: string; password: string } | null => {
-			let credentials: { username: string; password: string } | null = null;
-			subscribe((state) => {
-				if (state.isAuthenticated) {
-					credentials = { username: state.username, password: state.password };
-				}
-			})();
-			return credentials;
+			const state = get(store);
+			if (state.isAuthenticated) {
+				return { username: state.username, password: state.password };
+			}
+			return null;
 		}
 	};
 }

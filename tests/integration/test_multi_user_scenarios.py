@@ -9,7 +9,7 @@ from base64 import b64encode
 
 
 def create_scribe(client, faker):
-    """Helper function to create a scribe and return credentials."""
+    """Helper function to create a scribe, unlock (login), and return credentials."""
     username = faker.user_name()
     email = faker.email()
     password = faker.password(length=12)
@@ -25,6 +25,10 @@ def create_scribe(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Update bio
     client.patch(

@@ -9,7 +9,7 @@ from base64 import b64encode
 
 
 def create_scribe_with_entries(client, faker, num_entries=5):
-    """Helper to create a scribe with entries."""
+    """Helper to create a scribe, unlock (login), and create entries."""
     username = faker.user_name()
     email = faker.email()
     password = faker.password(length=12)
@@ -22,6 +22,10 @@ def create_scribe_with_entries(client, faker, num_entries=5):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Create entries
     entry_ids = []
@@ -85,6 +89,10 @@ def test_cascade_delete_with_mixed_visibility_entries(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Create mix of public and private entries
     entry_ids = []

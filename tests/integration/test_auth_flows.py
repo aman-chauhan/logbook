@@ -135,7 +135,11 @@ def test_authentication_persists_across_requests(client, faker):
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
 
-    # Multiple operations with same credentials
+    # Unlock (login) once at the start
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
+    # Multiple operations with same credentials (no need to re-unlock)
     for i in range(5):
         # Create entry
         response = client.post(
@@ -150,9 +154,9 @@ def test_authentication_persists_across_requests(client, faker):
         assert response.status_code == 200
         assert len(response.get_json()["data"]) == i + 1
 
-        # Unlock
-        response = client.post("/api/auth/unlock", headers=auth_headers)
-        assert response.status_code == 200
+    # Lock (logout) at the end
+    response = client.post("/api/auth/lock", headers=auth_headers)
+    assert response.status_code == 204
 
 
 @pytest.mark.integration
@@ -316,7 +320,7 @@ def test_auth_flow_with_profile_updates(client, faker):
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
 
-    # Unlock
+    # Unlock (login)
     response = client.post("/api/auth/unlock", headers=auth_headers)
     assert response.status_code == 200
 
@@ -329,11 +333,7 @@ def test_auth_flow_with_profile_updates(client, faker):
     )
     assert response.status_code == 200
 
-    # Auth still works with username (email doesn't affect username auth)
-    response = client.post("/api/auth/unlock", headers=auth_headers)
-    assert response.status_code == 200
-
-    # Update bio
+    # Update bio (no need to re-unlock, session persists)
     response = client.patch(
         f"/api/scribes/{scribe_id}",
         json={"bio": faker.text(max_nb_chars=200)},
@@ -341,7 +341,11 @@ def test_auth_flow_with_profile_updates(client, faker):
     )
     assert response.status_code == 200
 
-    # Auth still works
+    # Lock (logout)
+    response = client.post("/api/auth/lock", headers=auth_headers)
+    assert response.status_code == 204
+
+    # Verify can still unlock after lock (credentials remain valid)
     response = client.post("/api/auth/unlock", headers=auth_headers)
     assert response.status_code == 200
 
@@ -409,11 +413,7 @@ def test_auth_with_operations_across_all_endpoints(client, faker):
     response = client.delete(f"/api/entries/{entry_id}", headers=auth_headers)
     assert response.status_code == 204
 
-    # Lock
-    response = client.post("/api/auth/lock", headers=auth_headers)
-    assert response.status_code == 204
-
-    # Delete account
+    # Delete account (before locking out)
     response = client.delete(f"/api/scribes/{scribe_id}", headers=auth_headers)
     assert response.status_code == 204
 
@@ -583,11 +583,15 @@ def test_lock_endpoint_idempotency(client, faker):
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
 
-    # Lock multiple times
+    # Unlock (login) first
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
+    # Lock multiple times (test idempotency)
     for _ in range(5):
         response = client.post("/api/auth/lock", headers=auth_headers)
         assert response.status_code == 204
 
-    # Still can unlock (stateless)
+    # Still can unlock after multiple locks (stateless API)
     response = client.post("/api/auth/unlock", headers=auth_headers)
     assert response.status_code == 200

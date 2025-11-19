@@ -11,7 +11,7 @@
 	});
 
 	let email = $state($auth.scribe?.attributes.email || '');
-	let bio = $state($auth.scribe?.attributes.bio || '');
+	let bio = $state($auth.scribe?.attributes.bio ?? '');
 	let newPassword = $state('');
 	let confirmPassword = $state('');
 	let error = $state('');
@@ -35,7 +35,7 @@
 		if (email !== $auth.scribe?.attributes.email) {
 			updates.email = email;
 		}
-		if (bio !== ($auth.scribe?.attributes.bio || '')) {
+		if (bio !== ($auth.scribe?.attributes.bio ?? '')) {
 			updates.bio = bio;
 		}
 		if (newPassword) {

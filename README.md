@@ -25,11 +25,65 @@ This project prioritizes code clarity and serves as a reference implementation f
 - **Database**: SQLite with SQLAlchemy ORM
 - **Migrations**: Flask-Migrate
 - **Auth**: HTTP Basic Auth (Werkzeug)
+- **Frontend**: SvelteKit 2.x with TypeScript
 - **Process Manager**: Honcho
+
+## Web Client
+
+Logbook includes a SvelteKit-based web interface that provides a user-friendly UI for all API features.
+
+### Features
+
+- **Enlist**: Register as a new Scribe
+- **Unlock/Lock**: Authenticate and secure your logbook
+- **Profile Management**: View, amend, and retire your account
+- **Entry Management**: Create, read, update, and delete entries
+- **Chronicle**: View your documented journey
+
+### Prerequisites
+
+- Node.js 18+
+- Logbook API server running on port 5000
+
+### Running the Web Client
+
+The web client is started automatically with Honcho alongside the API server:
+
+```bash
+honcho start
+```
+
+This starts:
+- **api**: Flask API server on port 5000
+- **web**: SvelteKit dev server on port 5173
+
+Access the web interface at `http://localhost:5173`
+
+### Running Separately
+
+To run the web client independently:
+
+```bash
+cd webserver
+npm install
+npm run dev
+```
+
+### Building for Production
+
+```bash
+cd webserver
+npm run build
+npm run preview
+```
+
+For production deployment, configure an appropriate [SvelteKit adapter](https://svelte.dev/docs/kit/adapters).
+
+See [webserver/README.md](webserver/README.md) for detailed web client documentation.
 
 ## Quick Start
 
-**Prerequisites**: Python 3.12+
+**Prerequisites**: Python 3.12+, Node.js 18+ (for web client)
 
 ```bash
 # 1. Clone and navigate to directory
@@ -42,17 +96,19 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
+cd webserver && npm install && cd ..
 
 # 4. Configure environment
 cp .env.example .env
 # Edit .env and set SECRET_KEY to a strong random value
 # Note: FLASK_APP is already configured in .env.example
 
-# 5. Start the server (database already initialized)
+# 5. Start both servers (database already initialized)
 honcho start
 ```
 
-The API will be available at `http://localhost:5000`
+- **API**: `http://localhost:5000`
+- **Web Client**: `http://localhost:5173`
 
 **Note**: Database models and migrations are already set up. The database will be created automatically when you first start the server.
 
@@ -74,7 +130,7 @@ curl http://localhost:5000/
 
 ```
 logbook/
-├── apiserver/             # Application package
+├── apiserver/             # Flask API server
 │   ├── __init__.py        # Package initialization ✓
 │   ├── extensions.py      # Flask extensions (db, migrate) ✓
 │   ├── models.py          # Database models (Scribe, Entry) ✓
@@ -85,6 +141,14 @@ logbook/
 │       ├── auth.py        # Registration/login ✓
 │       ├── users.py       # User management ✓
 │       └── posts.py       # Entry management ✓
+├── webserver/             # SvelteKit web client ✓
+│   ├── src/
+│   │   ├── lib/
+│   │   │   ├── api.ts     # API client for backend ✓
+│   │   │   └── stores/    # Svelte stores ✓
+│   │   └── routes/        # Page components ✓
+│   ├── package.json       # Node.js dependencies ✓
+│   └── vite.config.ts     # Vite configuration ✓
 ├── tests/                 # Test suite ✓
 │   ├── conftest.py        # Shared fixtures ✓
 │   ├── unit/              # Unit tests ✓
@@ -95,7 +159,7 @@ logbook/
 ├── migrations/            # Database migrations ✓
 │   └── versions/          # Migration scripts ✓
 ├── venv/                  # Virtual environment
-├── requirements.txt       # Dependencies ✓
+├── requirements.txt       # Python dependencies ✓
 ├── pytest.ini             # Pytest configuration ✓
 ├── Procfile               # Honcho configuration ✓
 ├── .env                   # Environment variables ✓

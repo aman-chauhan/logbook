@@ -10,7 +10,7 @@ import time
 
 
 def create_scribe_with_auth(client, faker):
-    """Helper to create a scribe and return auth headers."""
+    """Helper to create a scribe, unlock (login), and return auth headers."""
     username = faker.user_name()
     email = faker.email()
     password = faker.password(length=12)
@@ -23,6 +23,11 @@ def create_scribe_with_auth(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
     return scribe_id, auth_headers
 
 

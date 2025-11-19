@@ -9,7 +9,7 @@ from base64 import b64encode
 
 
 def create_scribe(client, faker):
-    """Helper function to create a scribe and return credentials."""
+    """Helper function to create a scribe, unlock (login), and return credentials."""
     username = faker.user_name()
     email = faker.email()
     password = faker.password(length=12)
@@ -25,6 +25,10 @@ def create_scribe(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Update bio
     client.patch(
@@ -570,15 +574,19 @@ def test_cross_user_authentication_attempts(client, faker):
     scribe_b = create_scribe(client, faker)
 
     # Try to authenticate as Scribe A with Scribe B's password
+    username_a = scribe_a["username"]
+    password_b = scribe_b["password"]
     wrong_auth = {
-        "Authorization": f'Basic {b64encode(f"{scribe_a["username"]}:{scribe_b["password"]}".encode()).decode()}'
+        "Authorization": f"Basic {b64encode(f'{username_a}:{password_b}'.encode()).decode()}"
     }
     response = client.post("/api/auth/unlock", headers=wrong_auth)
     assert response.status_code == 401
 
     # Try to authenticate as Scribe B with Scribe A's password
+    username_b = scribe_b["username"]
+    password_a = scribe_a["password"]
     wrong_auth = {
-        "Authorization": f'Basic {b64encode(f"{scribe_b["username"]}:{scribe_a["password"]}".encode()).decode()}'
+        "Authorization": f"Basic {b64encode(f'{username_b}:{password_a}'.encode()).decode()}"
     }
     response = client.post("/api/auth/unlock", headers=wrong_auth)
     assert response.status_code == 401

@@ -27,11 +27,14 @@ def test_complete_user_lifecycle(client, faker):
     assert data["data"]["attributes"]["username"] == username
     assert data["data"]["attributes"]["email"] == email
 
-    # Step 2: Create several entries
+    # Step 2: Unlock (login)
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
+    # Step 3: Create several entries
     entry_ids = []
     for i in range(3):
         entry_content = faker.paragraph()
@@ -44,7 +47,7 @@ def test_complete_user_lifecycle(client, faker):
         assert response.status_code == 201
         entry_ids.append(response.get_json()["data"]["id"])
 
-    # Step 3: Update profile
+    # Step 4: Update profile
     new_bio = faker.text(max_nb_chars=150)
     response = client.patch(
         f"/api/scribes/{scribe_id}",
@@ -54,21 +57,21 @@ def test_complete_user_lifecycle(client, faker):
     assert response.status_code == 200
     assert response.get_json()["data"]["attributes"]["bio"] == new_bio
 
-    # Step 4: Verify chronicle contains all entries
+    # Step 5: Verify chronicle contains all entries
     response = client.get("/api/chronicle", headers=auth_headers)
     assert response.status_code == 200
     chronicle = response.get_json()["data"]
     assert len(chronicle) == 3
 
-    # Step 5: Delete account
+    # Step 6: Delete account
     response = client.delete(f"/api/scribes/{scribe_id}", headers=auth_headers)
     assert response.status_code == 204
 
-    # Step 6: Verify scribe is deleted
+    # Step 7: Verify scribe is deleted
     response = client.get(f"/api/scribes/{scribe_id}")
     assert response.status_code == 404
 
-    # Step 7: Verify entries are cascade deleted
+    # Step 8: Verify entries are cascade deleted
     for entry_id in entry_ids:
         response = client.get(f"/api/entries/{entry_id}")
         assert response.status_code == 404
@@ -90,6 +93,10 @@ def test_profile_updates_with_active_entries(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Create multiple entries
     entry_contents = [faker.paragraph() for _ in range(5)]
@@ -223,6 +230,10 @@ def test_multiple_profile_updates_in_sequence(client, faker):
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
 
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
     # Update bio
     new_bio = faker.text(max_nb_chars=200)
     response = client.patch(
@@ -271,6 +282,10 @@ def test_create_update_delete_entry_workflow(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Create entry
     original_content = faker.paragraph()
@@ -336,6 +351,10 @@ def test_bulk_entry_creation_and_chronicle_access(client, faker):
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
 
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
     # Create 20 entries with varied content
     num_entries = 20
     for i in range(num_entries):
@@ -376,10 +395,13 @@ def test_profile_view_public_access(client, faker):
     )
     scribe_id = response.get_json()["data"]["id"]
 
-    # Update bio
+    # Unlock (login) and update bio
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
     client.patch(
         f"/api/scribes/{scribe_id}", json={"bio": bio}, headers=auth_headers
     )
@@ -409,6 +431,10 @@ def test_account_deletion_after_multiple_operations(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Update profile multiple times
     for _ in range(3):
@@ -492,6 +518,10 @@ def test_empty_chronicle_for_new_user(client, faker):
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
 
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
+
     # Check chronicle
     response = client.get("/api/chronicle", headers=auth_headers)
     assert response.status_code == 200
@@ -525,6 +555,10 @@ def test_profile_and_entry_timestamps(client, faker):
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+
+    # Unlock (login)
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
 
     # Update profile and verify updatedAt changes
     import time
@@ -575,10 +609,12 @@ def test_email_uniqueness_across_lifecycle(client, faker):
     )
     assert response.status_code == 409
 
-    # Delete first scribe
+    # Unlock and delete first scribe
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username1}:{password}".encode()).decode()}'
     }
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
     client.delete(f"/api/scribes/{scribe_id}", headers=auth_headers)
 
     # Now should be able to enlist with that email
@@ -612,10 +648,12 @@ def test_username_uniqueness_across_lifecycle(client, faker):
     )
     assert response.status_code == 409
 
-    # Delete first scribe
+    # Unlock and delete first scribe
     auth_headers = {
         "Authorization": f'Basic {b64encode(f"{username}:{password}".encode()).decode()}'
     }
+    response = client.post("/api/auth/unlock", headers=auth_headers)
+    assert response.status_code == 200
     client.delete(f"/api/scribes/{scribe_id}", headers=auth_headers)
 
     # Now should be able to enlist with that username

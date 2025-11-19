@@ -141,7 +141,7 @@ def get_entry(current_scribe, entry_id):
              -u alice:secret123 \\
              -H "Accept: application/vnd.api+json"
     """
-    entry = Entry.query.get(entry_id)
+    entry = db.session.get(Entry, entry_id)
 
     # Return 404 if entry doesn't exist
     if not entry:
@@ -210,7 +210,7 @@ def update_entry(current_scribe, entry_id):
              -H "Content-Type: application/json" \\
              -d '{"content": "Updated content", "visibility": "private"}'
     """
-    entry = Entry.query.get(entry_id)
+    entry = db.session.get(Entry, entry_id)
 
     # Return 404 if entry doesn't exist
     if not entry:
@@ -316,7 +316,7 @@ def delete_entry(current_scribe, entry_id):
              -u alice:secret123 \\
              -i  # -i flag shows 204 status code
     """
-    entry = Entry.query.get(entry_id)
+    entry = db.session.get(Entry, entry_id)
 
     # Return 404 if entry doesn't exist
     if not entry:

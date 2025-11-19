@@ -570,15 +570,19 @@ def test_cross_user_authentication_attempts(client, faker):
     scribe_b = create_scribe(client, faker)
 
     # Try to authenticate as Scribe A with Scribe B's password
+    username_a = scribe_a["username"]
+    password_b = scribe_b["password"]
     wrong_auth = {
-        "Authorization": f'Basic {b64encode(f"{scribe_a["username"]}:{scribe_b["password"]}".encode()).decode()}'
+        "Authorization": f"Basic {b64encode(f'{username_a}:{password_b}'.encode()).decode()}"
     }
     response = client.post("/api/auth/unlock", headers=wrong_auth)
     assert response.status_code == 401
 
     # Try to authenticate as Scribe B with Scribe A's password
+    username_b = scribe_b["username"]
+    password_a = scribe_a["password"]
     wrong_auth = {
-        "Authorization": f'Basic {b64encode(f"{scribe_b["username"]}:{scribe_a["password"]}".encode()).decode()}'
+        "Authorization": f"Basic {b64encode(f'{username_b}:{password_a}'.encode()).decode()}"
     }
     response = client.post("/api/auth/unlock", headers=wrong_auth)
     assert response.status_code == 401

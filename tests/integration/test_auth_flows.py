@@ -441,11 +441,15 @@ def test_auth_isolation_between_users(client, faker):
     user2_id = response.get_json()["data"]["id"]
 
     # Create auth headers
+    user1_username = user1["username"]
+    user1_password = user1["password"]
+    user2_username = user2["username"]
+    user2_password = user2["password"]
     user1_auth = {
-        "Authorization": f'Basic {b64encode(f"{user1["username"]}:{user1["password"]}".encode()).decode()}'
+        "Authorization": f"Basic {b64encode(f'{user1_username}:{user1_password}'.encode()).decode()}"
     }
     user2_auth = {
-        "Authorization": f'Basic {b64encode(f"{user2["username"]}:{user2["password"]}".encode()).decode()}'
+        "Authorization": f"Basic {b64encode(f'{user2_username}:{user2_password}'.encode()).decode()}"
     }
 
     # User 1 can authenticate

@@ -108,7 +108,7 @@ class TestUpdateScribeEndpoint:
 
         # Verify database was updated
         db.session.expire_all()
-        updated_scribe = Scribe.query.get(sample_scribe.id)
+        updated_scribe = db.session.get(Scribe, sample_scribe.id)
         assert updated_scribe.email == new_email
 
     def test_update_scribe_bio_success(self, client, sample_scribe, auth_headers):
@@ -137,7 +137,7 @@ class TestUpdateScribeEndpoint:
 
         # Verify password was updated by trying to authenticate with new password
         db.session.expire_all()
-        updated_scribe = Scribe.query.get(sample_scribe.id)
+        updated_scribe = db.session.get(Scribe, sample_scribe.id)
         assert updated_scribe.check_password(new_password)
         assert not updated_scribe.check_password("testpass123")
 
@@ -293,7 +293,7 @@ class TestDeleteScribeEndpoint:
         assert response.data == b""
 
         # Verify scribe was deleted from database
-        deleted_scribe = Scribe.query.get(scribe_id)
+        deleted_scribe = db.session.get(Scribe, scribe_id)
         assert deleted_scribe is None
 
     def test_delete_scribe_cascade_deletes_entries(self, client, sample_scribe, sample_entry, auth_headers, db):
@@ -302,7 +302,7 @@ class TestDeleteScribeEndpoint:
         entry_id = sample_entry.id
 
         # Verify entry exists before deletion
-        entry = Entry.query.get(entry_id)
+        entry = db.session.get(Entry, entry_id)
         assert entry is not None
         assert entry.scribe_id == scribe_id
 
@@ -314,7 +314,7 @@ class TestDeleteScribeEndpoint:
         assert response.status_code == 204
 
         # Verify entry was cascade deleted
-        deleted_entry = Entry.query.get(entry_id)
+        deleted_entry = db.session.get(Entry, entry_id)
         assert deleted_entry is None
 
     def test_delete_scribe_with_multiple_entries(self, client, sample_scribe, auth_headers, entry_factory, db):
@@ -336,7 +336,7 @@ class TestDeleteScribeEndpoint:
 
         # Verify all entries were cascade deleted
         for entry_id in entry_ids:
-            deleted_entry = Entry.query.get(entry_id)
+            deleted_entry = db.session.get(Entry, entry_id)
             assert deleted_entry is None
 
     def test_delete_scribe_no_auth(self, client, sample_scribe):

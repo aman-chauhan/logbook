@@ -32,7 +32,7 @@ def get_scribe(scribe_id):
         curl -X GET http://localhost:5000/api/scribes/1 \\
              -H "Accept: application/vnd.api+json"
     """
-    scribe = Scribe.query.get(scribe_id)
+    scribe = db.session.get(Scribe, scribe_id)
 
     if not scribe:
         return (
@@ -84,7 +84,7 @@ def update_scribe(current_scribe, scribe_id):
              -d '{"email": "newemail@example.com", "bio": "Updated bio"}'
     """
     # Check if scribe exists
-    scribe = Scribe.query.get(scribe_id)
+    scribe = db.session.get(Scribe, scribe_id)
 
     if not scribe:
         return (
@@ -217,7 +217,7 @@ def delete_scribe(current_scribe, scribe_id):
              -i  # -i flag shows 204 status code
     """
     # Check if scribe exists
-    scribe = Scribe.query.get(scribe_id)
+    scribe = db.session.get(Scribe, scribe_id)
 
     if not scribe:
         return (

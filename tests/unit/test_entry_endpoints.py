@@ -317,7 +317,7 @@ class TestUpdateEntryEndpoint:
 
         # Verify database was updated
         db.session.expire_all()
-        updated_entry = Entry.query.get(sample_entry.id)
+        updated_entry = db.session.get(Entry, sample_entry.id)
         assert updated_entry.content == new_content
 
     def test_update_entry_visibility_success(self, client, sample_entry, auth_headers, db):
@@ -464,7 +464,7 @@ class TestDeleteEntryEndpoint:
         assert response.data == b""
 
         # Verify entry was deleted from database
-        deleted_entry = Entry.query.get(entry_id)
+        deleted_entry = db.session.get(Entry, entry_id)
         assert deleted_entry is None
 
     def test_delete_entry_no_auth(self, client, sample_entry):
@@ -534,7 +534,7 @@ class TestDeleteEntryEndpoint:
         )
 
         assert response.status_code == 204
-        assert Entry.query.get(entry_id) is None
+        assert db.session.get(Entry, entry_id) is None
 
 
 @pytest.mark.unit

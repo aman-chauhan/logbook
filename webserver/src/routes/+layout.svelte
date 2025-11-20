@@ -3,10 +3,15 @@
 	import { auth } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { lock } from '$lib/api';
+	import { onMount } from 'svelte';
 
-	// Import Bootstrap CSS and JS (bundled by Vite)
+	// Import Bootstrap CSS (safe for SSR)
 	import 'bootstrap/dist/css/bootstrap.min.css';
-	import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+	// Import Bootstrap JS only on client side (requires document)
+	onMount(async () => {
+		await import('bootstrap/dist/js/bootstrap.bundle.min.js');
+	});
 
 	let { children } = $props();
 

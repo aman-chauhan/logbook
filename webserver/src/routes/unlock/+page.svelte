@@ -34,30 +34,30 @@
 
 <h1>Unlock</h1>
 
-<p>Access your logbook.</p>
+<p class="lead">Access your logbook.</p>
 
 {#if enlisted}
-	<p class="success">Successfully enlisted! Please unlock your logbook.</p>
+	<div class="alert alert-success">Successfully enlisted! Please unlock your logbook.</div>
 {/if}
 
 {#if error}
-	<p class="error">{error}</p>
+	<div class="alert alert-danger">{error}</div>
 {/if}
 
-<form onsubmit={handleSubmit}>
-	<label>
-		Username
-		<input type="text" bind:value={username} required />
-	</label>
+<form onsubmit={handleSubmit} class="col-md-6">
+	<div class="mb-3">
+		<label for="username" class="form-label">Username</label>
+		<input type="text" class="form-control" id="username" bind:value={username} required />
+	</div>
 
-	<label>
-		Password
-		<input type="password" bind:value={password} required />
-	</label>
+	<div class="mb-3">
+		<label for="password" class="form-label">Password</label>
+		<input type="password" class="form-control" id="password" bind:value={password} required />
+	</div>
 
-	<button type="submit" disabled={loading}>
+	<button type="submit" class="btn btn-primary" disabled={loading}>
 		{loading ? 'Unlocking...' : 'Unlock'}
 	</button>
 </form>
 
-<p>New to Logbook? <a href="/enlist">Enlist</a> as a Scribe.</p>
+<p class="mt-3">New to Logbook? <a href="/enlist">Enlist</a> as a Scribe.</p>

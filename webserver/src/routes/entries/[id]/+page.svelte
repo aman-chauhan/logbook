@@ -92,52 +92,49 @@
 <h1>Edit Entry</h1>
 
 {#if error}
-	<p class="error">{error}</p>
+	<div class="alert alert-danger">{error}</div>
 {/if}
 
 {#if success}
-	<p class="success">{success}</p>
+	<div class="alert alert-success">{success}</div>
 {/if}
 
 {#if loading}
-	<p>Loading...</p>
+	<div class="d-flex justify-content-center">
+		<div class="spinner-border text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	</div>
 {:else}
-	<form onsubmit={handleSubmit}>
-		<label>
-			Content
-			<textarea bind:value={content} required maxlength="10000"></textarea>
-		</label>
+	<form onsubmit={handleSubmit} class="col-md-8">
+		<div class="mb-3">
+			<label for="content" class="form-label">Content</label>
+			<textarea
+				class="form-control"
+				id="content"
+				bind:value={content}
+				required
+				maxlength="10000"
+				rows="6"
+			></textarea>
+		</div>
 
-		<label>
-			Visibility
-			<select bind:value={visibility}>
+		<div class="mb-3">
+			<label for="visibility" class="form-label">Visibility</label>
+			<select class="form-select" id="visibility" bind:value={visibility}>
 				<option value="public">Public</option>
 				<option value="private">Private</option>
 			</select>
-		</label>
+		</div>
 
-		<button type="submit" disabled={saving}>
+		<button type="submit" class="btn btn-primary" disabled={saving}>
 			{saving ? 'Saving...' : 'Save Changes'}
 		</button>
 	</form>
 
-	<div style="margin-top: 2rem;">
-		<button class="danger" onclick={handleDelete}>Delete Entry</button>
+	<div class="mt-4">
+		<button class="btn btn-danger" onclick={handleDelete}>Delete Entry</button>
 	</div>
 {/if}
 
-<p><a href="/chronicle">Back to Chronicle</a></p>
-
-<style>
-	button {
-		padding: 0.5rem 1rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		cursor: pointer;
-		background: #eee;
-	}
-
-	button:hover {
-		background: #ddd;
-	}
-</style>
+<p class="mt-3"><a href="/chronicle">Back to Chronicle</a></p>

@@ -61,29 +61,39 @@
 
 <h1>Chronicle</h1>
 
-<p>Your documented journey.</p>
+<p class="lead">Your documented journey.</p>
 
 {#if error}
-	<p class="error">{error}</p>
+	<div class="alert alert-danger">{error}</div>
 {/if}
 
 {#if loading}
-	<p>Loading...</p>
+	<div class="d-flex justify-content-center">
+		<div class="spinner-border text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	</div>
 {:else if entries.length === 0}
-	<p>No entries yet. <a href="/entries/new">Create your first entry</a>.</p>
+	<div class="alert alert-info">
+		No entries yet. <a href="/entries/new">Create your first entry</a>.
+	</div>
 {:else}
 	{#each entries as entry}
-		<div class="entry">
-			<p>{entry.attributes.content}</p>
-			<div class="entry-meta">
-				<span>{formatDate(entry.attributes.createdAt)}</span>
-				{#if entry.attributes.visibility === 'private'}
-					<span> &bull; Private</span>
-				{/if}
-			</div>
-			<div class="entry-actions">
-				<a href="/entries/{entry.id}">Edit</a>
-				<button onclick={() => handleDelete(entry.id)}>Delete</button>
+		<div class="card mb-3">
+			<div class="card-body">
+				<p class="card-text">{entry.attributes.content}</p>
+				<div class="text-muted small">
+					<span>{formatDate(entry.attributes.createdAt)}</span>
+					{#if entry.attributes.visibility === 'private'}
+						<span class="badge bg-secondary ms-2">Private</span>
+					{/if}
+				</div>
+				<div class="mt-2">
+					<a href="/entries/{entry.id}" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
+					<button class="btn btn-sm btn-outline-danger" onclick={() => handleDelete(entry.id)}>
+						Delete
+					</button>
+				</div>
 			</div>
 		</div>
 	{/each}

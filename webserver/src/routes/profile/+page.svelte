@@ -99,90 +99,92 @@
 <h1>Profile</h1>
 
 {#if $auth.isAuthenticated}
-	<p>Manage your Scribe profile.</p>
+	<p class="lead">Manage your Scribe profile.</p>
 
 	{#if error}
-		<p class="error">{error}</p>
+		<div class="alert alert-danger">{error}</div>
 	{/if}
 
 	{#if success}
-		<p class="success">{success}</p>
+		<div class="alert alert-success">{success}</div>
 	{/if}
 
-	<h2>Amend Profile</h2>
+	<h2 class="h4 mt-4">Amend Profile</h2>
 
-	<form onsubmit={handleAmend}>
-		<label>
-			Username
-			<input type="text" value={$auth.scribe?.attributes.username} disabled />
-			<small>Username cannot be changed</small>
-		</label>
+	<form onsubmit={handleAmend} class="col-md-6">
+		<div class="mb-3">
+			<label for="username" class="form-label">Username</label>
+			<input
+				type="text"
+				class="form-control"
+				id="username"
+				value={$auth.scribe?.attributes.username}
+				disabled
+			/>
+			<div class="form-text">Username cannot be changed</div>
+		</div>
 
-		<label>
-			Email
-			<input type="email" bind:value={email} required />
-		</label>
+		<div class="mb-3">
+			<label for="email" class="form-label">Email</label>
+			<input type="email" class="form-control" id="email" bind:value={email} required />
+		</div>
 
-		<label>
-			Bio
-			<textarea bind:value={bio} maxlength="500" placeholder="Tell us about yourself..."></textarea>
-		</label>
+		<div class="mb-3">
+			<label for="bio" class="form-label">Bio</label>
+			<textarea
+				class="form-control"
+				id="bio"
+				bind:value={bio}
+				maxlength="500"
+				rows="3"
+				placeholder="Tell us about yourself..."
+			></textarea>
+		</div>
 
-		<label>
-			New Password (leave blank to keep current)
-			<input type="password" bind:value={newPassword} minlength="6" />
-		</label>
+		<div class="mb-3">
+			<label for="newPassword" class="form-label">New Password (leave blank to keep current)</label>
+			<input
+				type="password"
+				class="form-control"
+				id="newPassword"
+				bind:value={newPassword}
+				minlength="6"
+			/>
+		</div>
 
 		{#if newPassword}
-			<label>
-				Confirm New Password
-				<input type="password" bind:value={confirmPassword} required />
-			</label>
+			<div class="mb-3">
+				<label for="confirmPassword" class="form-label">Confirm New Password</label>
+				<input
+					type="password"
+					class="form-control"
+					id="confirmPassword"
+					bind:value={confirmPassword}
+					required
+				/>
+			</div>
 		{/if}
 
-		<button type="submit" disabled={loading}>
+		<button type="submit" class="btn btn-primary" disabled={loading}>
 			{loading ? 'Saving...' : 'Save Changes'}
 		</button>
 	</form>
 
-	<h2>Retire Account</h2>
+	<h2 class="h4 mt-5">Retire Account</h2>
 
 	<p>Permanently delete your account and all entries. This cannot be undone.</p>
 
 	{#if showRetireConfirm}
-		<p class="error">
+		<div class="alert alert-danger">
 			<strong>Are you sure?</strong> This will permanently delete your account and all entries.
-		</p>
-		<div style="display: flex; gap: 0.5rem;">
-			<button class="danger" onclick={handleRetire} disabled={loading}>
+		</div>
+		<div class="d-flex gap-2">
+			<button class="btn btn-danger" onclick={handleRetire} disabled={loading}>
 				{loading ? 'Retiring...' : 'Yes, Retire My Account'}
 			</button>
-			<button onclick={() => (showRetireConfirm = false)}>Cancel</button>
+			<button class="btn btn-secondary" onclick={() => (showRetireConfirm = false)}>Cancel</button>
 		</div>
 	{:else}
-		<button class="danger" onclick={handleRetire}>Retire Account</button>
+		<button class="btn btn-danger" onclick={handleRetire}>Retire Account</button>
 	{/if}
 {/if}
-
-<style>
-	small {
-		font-size: 0.75rem;
-		color: #666;
-	}
-
-	h2 {
-		margin-top: 2rem;
-	}
-
-	button {
-		padding: 0.5rem 1rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		cursor: pointer;
-		background: #eee;
-	}
-
-	button:hover {
-		background: #ddd;
-	}
-</style>

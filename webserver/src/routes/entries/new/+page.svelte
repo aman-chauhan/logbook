@@ -37,29 +37,37 @@
 
 <h1>New Entry</h1>
 
-<p>Document a new record in your chronicle.</p>
+<p class="lead">Document a new record in your chronicle.</p>
 
 {#if error}
-	<p class="error">{error}</p>
+	<div class="alert alert-danger">{error}</div>
 {/if}
 
-<form onsubmit={handleSubmit}>
-	<label>
-		Content
-		<textarea bind:value={content} required maxlength="10000" placeholder="Write your entry..."></textarea>
-	</label>
+<form onsubmit={handleSubmit} class="col-md-8">
+	<div class="mb-3">
+		<label for="content" class="form-label">Content</label>
+		<textarea
+			class="form-control"
+			id="content"
+			bind:value={content}
+			required
+			maxlength="10000"
+			rows="6"
+			placeholder="Write your entry..."
+		></textarea>
+	</div>
 
-	<label>
-		Visibility
-		<select bind:value={visibility}>
+	<div class="mb-3">
+		<label for="visibility" class="form-label">Visibility</label>
+		<select class="form-select" id="visibility" bind:value={visibility}>
 			<option value="public">Public</option>
 			<option value="private">Private</option>
 		</select>
-	</label>
+	</div>
 
-	<button type="submit" disabled={loading}>
+	<button type="submit" class="btn btn-primary" disabled={loading}>
 		{loading ? 'Creating...' : 'Create Entry'}
 	</button>
 </form>
 
-<p><a href="/chronicle">Back to Chronicle</a></p>
+<p class="mt-3"><a href="/chronicle">Back to Chronicle</a></p>

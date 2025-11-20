@@ -35,36 +35,57 @@
 
 <h1>Enlist</h1>
 
-<p>Join Logbook as a new Scribe.</p>
+<p class="lead">Join Logbook as a new Scribe.</p>
 
 {#if error}
-	<p class="error">{error}</p>
+	<div class="alert alert-danger">{error}</div>
 {/if}
 
-<form onsubmit={handleSubmit}>
-	<label>
-		Username
-		<input type="text" bind:value={username} required minlength="3" maxlength="64" />
-	</label>
+<form onsubmit={handleSubmit} class="col-md-6">
+	<div class="mb-3">
+		<label for="username" class="form-label">Username</label>
+		<input
+			type="text"
+			class="form-control"
+			id="username"
+			bind:value={username}
+			required
+			minlength="3"
+			maxlength="64"
+		/>
+	</div>
 
-	<label>
-		Email
-		<input type="email" bind:value={email} required />
-	</label>
+	<div class="mb-3">
+		<label for="email" class="form-label">Email</label>
+		<input type="email" class="form-control" id="email" bind:value={email} required />
+	</div>
 
-	<label>
-		Password
-		<input type="password" bind:value={password} required minlength="6" />
-	</label>
+	<div class="mb-3">
+		<label for="password" class="form-label">Password</label>
+		<input
+			type="password"
+			class="form-control"
+			id="password"
+			bind:value={password}
+			required
+			minlength="6"
+		/>
+	</div>
 
-	<label>
-		Confirm Password
-		<input type="password" bind:value={confirmPassword} required />
-	</label>
+	<div class="mb-3">
+		<label for="confirmPassword" class="form-label">Confirm Password</label>
+		<input
+			type="password"
+			class="form-control"
+			id="confirmPassword"
+			bind:value={confirmPassword}
+			required
+		/>
+	</div>
 
-	<button type="submit" disabled={loading}>
+	<button type="submit" class="btn btn-primary" disabled={loading}>
 		{loading ? 'Enlisting...' : 'Enlist'}
 	</button>
 </form>
 
-<p>Already have an account? <a href="/unlock">Unlock</a> your logbook.</p>
+<p class="mt-3">Already have an account? <a href="/unlock">Unlock</a> your logbook.</p>

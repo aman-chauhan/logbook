@@ -35,39 +35,50 @@
 	}
 </script>
 
-<h1>New Entry</h1>
+<div class="row justify-content-center">
+	<div class="col-lg-8">
+		<div class="card shadow-sm border-start border-4 border-success">
+			<div class="card-body p-4">
+				<h1 class="mb-3">New Entry</h1>
 
-<p class="lead">Document a new record in your chronicle.</p>
+				<p class="lead mb-4">Document a new record in your chronicle.</p>
 
-{#if error}
-	<div class="alert alert-danger">{error}</div>
-{/if}
+				{#if error}
+					<div class="alert alert-danger border-start border-4 border-danger">{error}</div>
+				{/if}
 
-<form onsubmit={handleSubmit} class="col-md-8">
-	<div class="mb-3">
-		<label for="content" class="form-label">Content</label>
-		<textarea
-			class="form-control"
-			id="content"
-			bind:value={content}
-			required
-			maxlength="10000"
-			rows="6"
-			placeholder="Write your entry..."
-		></textarea>
+				<form onsubmit={handleSubmit}>
+					<div class="mb-3">
+						<label for="content" class="form-label fw-semibold">Content</label>
+						<textarea
+							class="form-control"
+							id="content"
+							bind:value={content}
+							required
+							maxlength="10000"
+							rows="8"
+							placeholder="Write your entry..."
+						></textarea>
+					</div>
+
+					<div class="mb-4">
+						<label for="visibility" class="form-label fw-semibold">Visibility</label>
+						<select class="form-select" id="visibility" bind:value={visibility}>
+							<option value="public">Public</option>
+							<option value="private">Private</option>
+						</select>
+					</div>
+
+					<div class="d-flex gap-2">
+						<button type="submit" class="btn btn-success rounded shadow-sm" disabled={loading}>
+							{loading ? 'Creating...' : 'Create Entry'}
+						</button>
+						<a href="/chronicle" class="btn btn-outline-secondary rounded shadow-sm"
+							>Back to Chronicle</a
+						>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
-
-	<div class="mb-3">
-		<label for="visibility" class="form-label">Visibility</label>
-		<select class="form-select" id="visibility" bind:value={visibility}>
-			<option value="public">Public</option>
-			<option value="private">Private</option>
-		</select>
-	</div>
-
-	<button type="submit" class="btn btn-primary" disabled={loading}>
-		{loading ? 'Creating...' : 'Create Entry'}
-	</button>
-</form>
-
-<p class="mt-3"><a href="/chronicle">Back to Chronicle</a></p>
+</div>

@@ -59,40 +59,57 @@
 	}
 </script>
 
-<h1>Chronicle</h1>
-
-<p class="lead">Your documented journey.</p>
+<div class="mb-4">
+	<h1>Chronicle</h1>
+	<p class="lead text-muted">Your documented journey.</p>
+</div>
 
 {#if error}
-	<div class="alert alert-danger">{error}</div>
+	<div class="alert alert-danger border-start border-4 border-danger">{error}</div>
 {/if}
 
 {#if loading}
-	<div class="d-flex justify-content-center">
-		<div class="spinner-border text-primary" role="status">
-			<span class="visually-hidden">Loading...</span>
+	<div class="card shadow-sm">
+		<div class="card-body text-center py-5">
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			<p class="mt-3 text-muted mb-0">Loading your entries...</p>
 		</div>
 	</div>
 {:else if entries.length === 0}
-	<div class="alert alert-info">
-		No entries yet. <a href="/entries/new">Create your first entry</a>.
+	<div class="card shadow-sm border-start border-4 border-info">
+		<div class="card-body p-4">
+			<div class="alert alert-info border-0 mb-0">
+				No entries yet. <a href="/entries/new" class="fw-semibold text-decoration-none"
+					>Create your first entry</a
+				>.
+			</div>
+		</div>
 	</div>
 {:else}
 	{#each entries as entry}
-		<div class="card mb-3">
-			<div class="card-body">
-				<p class="card-text">{entry.attributes.content}</p>
-				<div class="text-muted small">
-					<span>{formatDate(entry.attributes.createdAt)}</span>
-					{#if entry.attributes.visibility === 'private'}
-						<span class="badge bg-secondary ms-2">Private</span>
-					{/if}
-				</div>
-				<div class="mt-2">
-					<a href="/entries/{entry.id}" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
-					<button class="btn btn-sm btn-outline-danger" onclick={() => handleDelete(entry.id)}>
-						Delete
-					</button>
+		<div class="card mb-3 shadow-sm border-start border-3 border-primary">
+			<div class="card-body p-4">
+				<p class="card-text mb-3">{entry.attributes.content}</p>
+				<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+					<div class="text-muted small">
+						<span>{formatDate(entry.attributes.createdAt)}</span>
+						{#if entry.attributes.visibility === 'private'}
+							<span class="badge bg-secondary ms-2 rounded-pill">Private</span>
+						{/if}
+					</div>
+					<div class="d-flex gap-2">
+						<a href="/entries/{entry.id}" class="btn btn-sm btn-outline-primary rounded shadow-sm"
+							>Edit</a
+						>
+						<button
+							class="btn btn-sm btn-outline-danger rounded shadow-sm"
+							onclick={() => handleDelete(entry.id)}
+						>
+							Delete
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -32,32 +32,53 @@
 	}
 </script>
 
-<h1>Unlock</h1>
+<div class="row justify-content-center">
+	<div class="col-md-6">
+		<div class="card shadow-sm">
+			<div class="card-body p-4">
+				<h1 class="mb-3">Unlock</h1>
 
-<p class="lead">Access your logbook.</p>
+				<p class="lead mb-4">Access your logbook.</p>
 
-{#if enlisted}
-	<div class="alert alert-success">Successfully enlisted! Please unlock your logbook.</div>
-{/if}
+				{#if enlisted}
+					<div class="alert alert-success border-start border-4 border-success">
+						Successfully enlisted! Please unlock your logbook.
+					</div>
+				{/if}
 
-{#if error}
-	<div class="alert alert-danger">{error}</div>
-{/if}
+				{#if error}
+					<div class="alert alert-danger border-start border-4 border-danger">{error}</div>
+				{/if}
 
-<form onsubmit={handleSubmit} class="col-md-6">
-	<div class="mb-3">
-		<label for="username" class="form-label">Username</label>
-		<input type="text" class="form-control" id="username" bind:value={username} required />
+				<form onsubmit={handleSubmit}>
+					<div class="mb-3">
+						<label for="username" class="form-label fw-semibold">Username</label>
+						<input type="text" class="form-control" id="username" bind:value={username} required />
+					</div>
+
+					<div class="mb-3">
+						<label for="password" class="form-label fw-semibold">Password</label>
+						<input
+							type="password"
+							class="form-control"
+							id="password"
+							bind:value={password}
+							required
+						/>
+					</div>
+
+					<button type="submit" class="btn btn-primary w-100 rounded shadow-sm" disabled={loading}>
+						{loading ? 'Unlocking...' : 'Unlock'}
+					</button>
+				</form>
+
+				<hr class="my-4" />
+
+				<p class="text-center text-muted mb-0">
+					New to Logbook? <a href="/enlist" class="text-decoration-none fw-semibold">Enlist</a> as a
+					Scribe.
+				</p>
+			</div>
+		</div>
 	</div>
-
-	<div class="mb-3">
-		<label for="password" class="form-label">Password</label>
-		<input type="password" class="form-control" id="password" bind:value={password} required />
-	</div>
-
-	<button type="submit" class="btn btn-primary" disabled={loading}>
-		{loading ? 'Unlocking...' : 'Unlock'}
-	</button>
-</form>
-
-<p class="mt-3">New to Logbook? <a href="/enlist">Enlist</a> as a Scribe.</p>
+</div>

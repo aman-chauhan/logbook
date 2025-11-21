@@ -18,6 +18,7 @@ This project prioritizes code clarity and serves as a reference implementation f
 - Public/private visibility controls
 - Chronological entry feeds
 - HTTP Basic Authentication
+- UUID-based resource IDs for better security and scalability
 
 ## Tech Stack
 
@@ -167,13 +168,15 @@ logbook/
 ```
 
 **Current Status**:
-- ✓ Database models created with salt-based password hashing and explicit `__init__` methods
+- ✓ Database models created with UUID primary keys and salt-based password hashing
+- ✓ Explicit `__init__` methods for improved clarity and IDE compatibility
 - ✓ Database initialized with migrations applied
 - ✓ Basic Flask application with health check endpoints
 - ✓ Authentication decorators implemented (@require_auth, @optional_auth)
 - ✓ Authentication endpoints (POST /api/auth/enlist, /unlock, /lock)
 - ✓ User profile endpoints (GET, PATCH, DELETE /api/scribes/:id)
 - ✓ Entry endpoints (POST, GET, PATCH, DELETE /api/entries, GET /api/chronicle)
+- ✓ SvelteKit web client with full UI implementation
 - ✓ Comprehensive test suite with unit and integration tests (97% coverage)
 
 ## API Documentation
@@ -284,7 +287,7 @@ flask db upgrade                     # Apply migrations
 flask db downgrade                   # Revert migration
 ```
 
-**Note**: Models use explicit `__init__` methods for clarity and IDE compatibility, plus `TYPE_CHECKING` for backref type hints to prevent circular dependency warnings. See [models.py](apiserver/models.py) for implementation details.
+**Note**: Models use UUID primary keys for better security and scalability. They also include explicit `__init__` methods for clarity and IDE compatibility, plus `TYPE_CHECKING` for backref type hints to prevent circular dependency warnings. See [models.py](apiserver/models.py) for implementation details.
 
 ### Code Formatting
 

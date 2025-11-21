@@ -5,6 +5,7 @@ This module defines the core database models for the Logbook platform:
 - Entry: Content entries in a scribe's chronicle
 """
 
+import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -26,7 +27,7 @@ class Scribe(db.Model):
 
     __tablename__ = "scribes"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
@@ -121,7 +122,7 @@ class Entry(db.Model):
 
     __tablename__ = "entries"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     content = db.Column(db.Text, nullable=False)
     visibility = db.Column(
         db.String(10), nullable=False, default="public"
@@ -131,7 +132,7 @@ class Entry(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
     scribe_id = db.Column(
-        db.Integer, db.ForeignKey("scribes.id"), nullable=False, index=True
+        db.String(36), db.ForeignKey("scribes.id"), nullable=False, index=True
     )
 
     # Type hint for backref relationship (created by Scribe.entries relationship)
@@ -143,7 +144,7 @@ class Entry(db.Model):
 
         Args:
             content (str): The text content of the entry
-            scribe_id (int): The ID of the scribe who created this entry
+            scribe_id (str): The UUID of the scribe who created this entry
             visibility (str, optional): Visibility setting ('public' or 'private').
                                        Defaults to 'public'.
 

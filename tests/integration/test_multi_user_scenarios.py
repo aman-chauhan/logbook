@@ -416,14 +416,14 @@ def test_user_cannot_access_others_chronicle(client, faker):
     chronicle_a = response.get_json()["data"]
     assert len(chronicle_a) == 4
     for entry in chronicle_a:
-        assert entry["attributes"]["scribeId"] == int(scribe_a["id"])
+        assert entry["attributes"]["scribeId"] == scribe_a["id"]
 
     # Scribe B's chronicle only has 6 entries
     response = client.get("/api/chronicle", headers=scribe_b["auth_headers"])
     chronicle_b = response.get_json()["data"]
     assert len(chronicle_b) == 6
     for entry in chronicle_b:
-        assert entry["attributes"]["scribeId"] == int(scribe_b["id"])
+        assert entry["attributes"]["scribeId"] == scribe_b["id"]
 
 
 @pytest.mark.integration

@@ -25,7 +25,7 @@ export interface Entry {
 		visibility: string;
 		createdAt: string;
 		updatedAt: string;
-		scribeId: number;
+		scribeId: string;
 		scribeUsername: string;
 	};
 }

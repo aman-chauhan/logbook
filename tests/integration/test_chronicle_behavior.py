@@ -372,7 +372,7 @@ def test_chronicle_entry_attributes_complete(client, faker):
     assert "createdAt" in attrs
     assert "updatedAt" in attrs
     assert "scribeId" in attrs
-    assert attrs["scribeId"] == int(scribe_id)
+    assert attrs["scribeId"] == scribe_id
     assert "scribeUsername" in attrs
 
     # Verify timestamp format (ISO 8601 with Z)

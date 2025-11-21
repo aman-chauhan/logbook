@@ -30,9 +30,10 @@ class TestGetScribeEndpoint:
         assert "createdAt" in data["data"]["attributes"]
         assert "updatedAt" in data["data"]["attributes"]
 
-    def test_get_scribe_not_found(self, client):
+    def test_get_scribe_not_found(self, client, faker):
         """Test retrieving a non-existent scribe returns 404."""
-        response = client.get("/api/scribes/999999")
+        fake_uuid = faker.uuid4()
+        response = client.get(f"/api/scribes/{fake_uuid}")
 
         assert response.status_code == 404
         data = response.get_json()
@@ -40,7 +41,7 @@ class TestGetScribeEndpoint:
         assert len(data["errors"]) == 1
         assert data["errors"][0]["status"] == "404"
         assert data["errors"][0]["title"] == "Scribe Not Found"
-        assert "999999" in data["errors"][0]["detail"]
+        assert fake_uuid in data["errors"][0]["detail"]
 
     def test_get_scribe_with_bio(self, client, db, faker):
         """Test retrieving a scribe with bio information."""
@@ -203,10 +204,11 @@ class TestUpdateScribeEndpoint:
         assert data["errors"][0]["title"] == "Forbidden"
         assert "your own profile" in data["errors"][0]["detail"]
 
-    def test_update_scribe_not_found(self, client, auth_headers):
+    def test_update_scribe_not_found(self, client, auth_headers, faker):
         """Test updating non-existent scribe returns 404."""
+        fake_uuid = faker.uuid4()
         response = client.patch(
-            "/api/scribes/999999",
+            f"/api/scribes/{fake_uuid}",
             json={"bio": "Should fail"},
             headers=auth_headers
         )
@@ -376,10 +378,11 @@ class TestDeleteScribeEndpoint:
         assert data["errors"][0]["title"] == "Forbidden"
         assert "your own account" in data["errors"][0]["detail"]
 
-    def test_delete_scribe_not_found(self, client, auth_headers):
+    def test_delete_scribe_not_found(self, client, auth_headers, faker):
         """Test deleting non-existent scribe returns 404."""
+        fake_uuid = faker.uuid4()
         response = client.delete(
-            "/api/scribes/999999",
+            f"/api/scribes/{fake_uuid}",
             headers=auth_headers
         )
 

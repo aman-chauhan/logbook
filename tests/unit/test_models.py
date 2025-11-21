@@ -338,8 +338,8 @@ class TestEntryModel:
         """
         from sqlalchemy.exc import IntegrityError
 
-        # Try to create entry with non-existent scribe_id
-        entry = Entry(content=faker.text(), scribe_id=99999)
+        # Try to create entry with non-existent scribe_id (fake UUID)
+        entry = Entry(content=faker.text(), scribe_id=faker.uuid4())
         db.session.add(entry)
 
         # Should raise IntegrityError due to foreign key constraint

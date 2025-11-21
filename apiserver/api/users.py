@@ -14,7 +14,7 @@ from ..models import Scribe
 from ..extensions import db
 
 
-@api_bp.route("/scribes/<int:scribe_id>", methods=["GET"])
+@api_bp.route("/scribes/<string:scribe_id>", methods=["GET"])
 def get_scribe(scribe_id):
     """Get scribe profile by ID.
 
@@ -22,14 +22,14 @@ def get_scribe(scribe_id):
     Returns basic profile information without sensitive data.
 
     Args:
-        scribe_id: The ID of the scribe to retrieve
+        scribe_id: The UUID of the scribe to retrieve
 
     Returns:
         200 OK: Scribe profile found
         404 Not Found: Scribe does not exist
 
     Example:
-        curl -X GET http://localhost:5000/api/scribes/1 \\
+        curl -X GET http://localhost:5000/api/scribes/7a0bceb8-8ce7-4c6d-92ed-5bcc23bd7f4a \\
              -H "Accept: application/vnd.api+json"
     """
     scribe = db.session.get(Scribe, scribe_id)
@@ -53,7 +53,7 @@ def get_scribe(scribe_id):
     return jsonify({"data": scribe.to_jsonapi()}), 200
 
 
-@api_bp.route("/scribes/<int:scribe_id>", methods=["PATCH"])
+@api_bp.route("/scribes/<string:scribe_id>", methods=["PATCH"])
 @require_auth
 def update_scribe(current_scribe, scribe_id):
     """Update scribe profile.
@@ -68,7 +68,7 @@ def update_scribe(current_scribe, scribe_id):
 
     Args:
         current_scribe: Authenticated scribe (from @require_auth)
-        scribe_id: The ID of the scribe to update
+        scribe_id: The UUID of the scribe to update
 
     Returns:
         200 OK: Profile updated successfully
@@ -78,7 +78,7 @@ def update_scribe(current_scribe, scribe_id):
         409 Conflict: Email already in use
 
     Example:
-        curl -X PATCH http://localhost:5000/api/scribes/1 \\
+        curl -X PATCH http://localhost:5000/api/scribes/7a0bceb8-8ce7-4c6d-92ed-5bcc23bd7f4a \\
              -u alice:secret123 \\
              -H "Content-Type: application/json" \\
              -d '{"email": "newemail@example.com", "bio": "Updated bio"}'
@@ -191,7 +191,7 @@ def update_scribe(current_scribe, scribe_id):
     return jsonify({"data": scribe.to_jsonapi()}), 200
 
 
-@api_bp.route("/scribes/<int:scribe_id>", methods=["DELETE"])
+@api_bp.route("/scribes/<string:scribe_id>", methods=["DELETE"])
 @require_auth
 def delete_scribe(current_scribe, scribe_id):
     """Delete scribe account.
@@ -204,7 +204,7 @@ def delete_scribe(current_scribe, scribe_id):
 
     Args:
         current_scribe: Authenticated scribe (from @require_auth)
-        scribe_id: The ID of the scribe to delete
+        scribe_id: The UUID of the scribe to delete
 
     Returns:
         204 No Content: Account deleted successfully
@@ -212,7 +212,7 @@ def delete_scribe(current_scribe, scribe_id):
         404 Not Found: Scribe does not exist
 
     Example:
-        curl -X DELETE http://localhost:5000/api/scribes/1 \\
+        curl -X DELETE http://localhost:5000/api/scribes/7a0bceb8-8ce7-4c6d-92ed-5bcc23bd7f4a \\
              -u alice:secret123 \\
              -i  # -i flag shows 204 status code
     """

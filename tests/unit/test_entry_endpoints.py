@@ -279,9 +279,9 @@ class TestGetEntryEndpoint:
         # Returns 404 to hide existence
         assert response.status_code == 404
 
-    def test_get_entry_not_found(self, client):
+    def test_get_entry_not_found(self, client, faker):
         """Test retrieving non-existent entry returns 404."""
-        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        fake_uuid = faker.uuid4()
         response = client.get(f"/api/entries/{fake_uuid}")
 
         assert response.status_code == 404
@@ -400,9 +400,9 @@ class TestUpdateEntryEndpoint:
         assert data["errors"][0]["title"] == "Forbidden"
         assert "your own entries" in data["errors"][0]["detail"]
 
-    def test_update_entry_not_found(self, client, auth_headers):
+    def test_update_entry_not_found(self, client, auth_headers, faker):
         """Test updating non-existent entry returns 404."""
-        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        fake_uuid = faker.uuid4()
         response = client.patch(
             f"/api/entries/{fake_uuid}",
             json={"content": "Should fail"},
@@ -511,9 +511,9 @@ class TestDeleteEntryEndpoint:
         assert data["errors"][0]["title"] == "Forbidden"
         assert "your own entries" in data["errors"][0]["detail"]
 
-    def test_delete_entry_not_found(self, client, auth_headers):
+    def test_delete_entry_not_found(self, client, auth_headers, faker):
         """Test deleting non-existent entry returns 404."""
-        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        fake_uuid = faker.uuid4()
         response = client.delete(f"/api/entries/{fake_uuid}", headers=auth_headers)
 
         assert response.status_code == 404

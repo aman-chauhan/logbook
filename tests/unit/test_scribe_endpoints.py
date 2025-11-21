@@ -30,9 +30,9 @@ class TestGetScribeEndpoint:
         assert "createdAt" in data["data"]["attributes"]
         assert "updatedAt" in data["data"]["attributes"]
 
-    def test_get_scribe_not_found(self, client):
+    def test_get_scribe_not_found(self, client, faker):
         """Test retrieving a non-existent scribe returns 404."""
-        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        fake_uuid = faker.uuid4()
         response = client.get(f"/api/scribes/{fake_uuid}")
 
         assert response.status_code == 404
@@ -204,9 +204,9 @@ class TestUpdateScribeEndpoint:
         assert data["errors"][0]["title"] == "Forbidden"
         assert "your own profile" in data["errors"][0]["detail"]
 
-    def test_update_scribe_not_found(self, client, auth_headers):
+    def test_update_scribe_not_found(self, client, auth_headers, faker):
         """Test updating non-existent scribe returns 404."""
-        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        fake_uuid = faker.uuid4()
         response = client.patch(
             f"/api/scribes/{fake_uuid}",
             json={"bio": "Should fail"},
@@ -378,9 +378,9 @@ class TestDeleteScribeEndpoint:
         assert data["errors"][0]["title"] == "Forbidden"
         assert "your own account" in data["errors"][0]["detail"]
 
-    def test_delete_scribe_not_found(self, client, auth_headers):
+    def test_delete_scribe_not_found(self, client, auth_headers, faker):
         """Test deleting non-existent scribe returns 404."""
-        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        fake_uuid = faker.uuid4()
         response = client.delete(
             f"/api/scribes/{fake_uuid}",
             headers=auth_headers

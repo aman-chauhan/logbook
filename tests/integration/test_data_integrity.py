@@ -216,7 +216,7 @@ def test_database_consistency_after_failed_operations(client, faker):
     )
 
     # Try to update nonexistent entry (should fail)
-    fake_uuid = "00000000-0000-0000-0000-000000000000"
+    fake_uuid = faker.uuid4()
     response = client.patch(
         f"/api/entries/{fake_uuid}",
         json={"content": faker.paragraph()},

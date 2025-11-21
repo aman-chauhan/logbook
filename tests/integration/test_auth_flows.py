@@ -67,7 +67,7 @@ def test_authentication_required_for_protected_endpoints(client, faker):
     assert response.status_code == 401
 
     # Update profile (nonexistent ID)
-    fake_uuid = "00000000-0000-0000-0000-000000000000"
+    fake_uuid = faker.uuid4()
     response = client.patch(f"/api/scribes/{fake_uuid}", json={"bio": faker.text(max_nb_chars=100)})
     assert response.status_code == 401
 

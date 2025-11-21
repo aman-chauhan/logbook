@@ -3,38 +3,54 @@ name: Tests
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - '**/*.md'
-      - 'LICENSE'
-      - 'docs/**'
-      - '.gitignore'
   pull_request:
     branches: [ main, develop ]
-    paths-ignore:
-      - '**/*.md'
-      - 'LICENSE'
-      - 'docs/**'
-      - '.gitignore'
 
 jobs:
-  test:
+  apiserver-tests:
+    name: API Server Tests
     runs-on: ubuntu-latest
+
+    # Run if any Python files or API-related files changed
+    # Skip if only documentation, webserver, or config files changed
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      (
+        github.event_name == 'pull_request' ||
+        github.event_name == 'push'
+      )
 
     steps:
     - uses: actions/checkout@v4
 
+    # Check if we should run this job based on changed files
+    - name: Check for API changes
+      uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          apiserver:
+            - 'apiserver/**'
+            - 'tests/**'
+            - 'requirements.txt'
+            - 'pytest.ini'
+            - '.github/workflows/test.yml'
+
     - name: Set up Python 3.12
+      if: steps.changes.outputs.apiserver == 'true'
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'pip'
 
     - name: Install dependencies
+      if: steps.changes.outputs.apiserver == 'true'
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Run tests with coverage
+      if: steps.changes.outputs.apiserver == 'true'
       run: |
         pytest --cov=apiserver --cov-report=xml --cov-report=term-missing --cov-branch
       env:
@@ -44,21 +60,86 @@ jobs:
         SQLALCHEMY_DATABASE_URI: sqlite:///test.db
 
     - name: Upload coverage to Codecov
+      if: steps.changes.outputs.apiserver == 'true'
       uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
+        flags: apiserver
+        name: apiserver-coverage
         fail_ci_if_error: false
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-
     - name: Archive coverage reports
+      if: steps.changes.outputs.apiserver == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-report
+        name: apiserver-coverage-report
         path: |
           coverage.xml
           htmlcov/
+        retention-days: 30
+
+  webserver-tests:
+    name: Web Server Tests
+    runs-on: ubuntu-latest
+
+    # Run if any webserver files changed
+    # Skip if only documentation, API, or config files changed
+    if: |
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      (
+        github.event_name == 'pull_request' ||
+        github.event_name == 'push'
+      )
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Check if we should run this job based on changed files
+    - name: Check for webserver changes
+      uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          webserver:
+            - 'webserver/**'
+            - '.github/workflows/test.yml'
+
+    - name: Set up Node.js
+      if: steps.changes.outputs.webserver == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: webserver/package-lock.json
+
+    - name: Install dependencies
+      if: steps.changes.outputs.webserver == 'true'
+      working-directory: ./webserver
+      run: npm ci
+
+    - name: Run tests with coverage
+      if: steps.changes.outputs.webserver == 'true'
+      working-directory: ./webserver
+      run: npm run test:coverage
+
+    - name: Upload coverage to Codecov
+      if: steps.changes.outputs.webserver == 'true'
+      uses: codecov/codecov-action@v4
+      with:
+        directory: ./webserver/coverage
+        flags: webserver
+        name: webserver-coverage
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Archive coverage reports
+      if: steps.changes.outputs.webserver == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: webserver-coverage-report
+        path: |
+          webserver/coverage/
         retention-days: 30

@@ -130,7 +130,18 @@ Testing stack:
 
 ## Integration with CI/CD
 
-The test suite is designed to integrate with CI/CD pipelines:
+### GitHub Actions
+
+The webserver tests run automatically in GitHub Actions when webserver files change. The workflow is configured to:
+
+- **Trigger on:** Changes to any file in `webserver/**`
+- **Skip when:** Only API server or documentation files change
+- **Node version:** 20
+- **Coverage upload:** Automatically uploads to Codecov with `webserver` flag
+
+See `.github/workflows/test.yml` for the complete workflow configuration.
+
+### Running Tests Locally (CI Mode)
 
 ```bash
 # CI mode (exits with error code on failure)
@@ -140,4 +151,24 @@ npm run test:run
 npm run test:coverage
 ```
 
-Coverage reports can be uploaded to services like Codecov or Coveralls for tracking over time.
+### Codecov Integration
+
+Coverage reports are automatically uploaded to Codecov on every CI run. The webserver coverage:
+
+- **Flag:** `webserver` (for filtering in Codecov dashboard)
+- **Target:** 90% coverage
+- **Badge:** Included in combined project coverage badge
+- **Carryforward:** Previous coverage is used when code doesn't change
+
+View detailed coverage reports at: `https://codecov.io/gh/aman-chauhan/logbook`
+
+### CI Environment
+
+Tests run in the following environment in CI:
+- **OS:** Ubuntu Latest
+- **Node:** 20.x
+- **Package Manager:** npm (with `npm ci` for clean installs)
+- **Test Framework:** Vitest 4.x
+- **Coverage:** V8 provider
+
+For more details on the CI/CD setup, see `.github/CI-CD.md`.

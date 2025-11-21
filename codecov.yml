@@ -8,15 +8,47 @@ coverage:
 
   status:
     project:
+      # Overall project coverage (combined apiserver + webserver)
       default:
         target: auto
         threshold: 1%
         informational: false
+
+      # API server coverage
+      apiserver:
+        flags:
+          - apiserver
+        target: 95%
+        threshold: 1%
+        paths:
+          - apiserver/
+
+      # Web server coverage
+      webserver:
+        flags:
+          - webserver
+        target: 90%
+        threshold: 1%
+        paths:
+          - webserver/src/lib/
+
     patch:
       default:
         target: auto
         threshold: 1%
         informational: false
+
+# Configure flags for separate coverage reports
+flags:
+  apiserver:
+    paths:
+      - apiserver/
+    carryforward: true
+
+  webserver:
+    paths:
+      - webserver/src/lib/
+    carryforward: true
 
 comment:
   layout: "reach,diff,flags,tree"
@@ -24,7 +56,20 @@ comment:
   require_changes: no
 
 ignore:
+  # Python ignores
   - "tests/**"
   - "migrations/**"
   - "venv/**"
   - "**/__pycache__/**"
+
+  # JavaScript ignores
+  - "webserver/node_modules/**"
+  - "webserver/.svelte-kit/**"
+  - "webserver/build/**"
+  - "webserver/coverage/**"
+  - "webserver/**/*.test.ts"
+  - "webserver/**/*.spec.ts"
+  - "webserver/tests/**"
+  - "webserver/src/lib/index.ts"
+  - "webserver/**/*.d.ts"
+  - "webserver/**/*.config.*"

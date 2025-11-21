@@ -9,6 +9,9 @@ package-lock.json
 /.svelte-kit
 /build
 
+# Test coverage
+coverage
+
 # OS
 .DS_Store
 Thumbs.db

@@ -3,6 +3,15 @@
 	import { auth } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { lock } from '$lib/api';
+	import { onMount } from 'svelte';
+
+	// Import Bootstrap CSS (safe for SSR)
+	import 'bootstrap/dist/css/bootstrap.min.css';
+
+	// Import Bootstrap JS only on client side (requires document)
+	onMount(async () => {
+		await import('bootstrap/dist/js/bootstrap.bundle.min.js');
+	});
 
 	let { children } = $props();
 
@@ -20,165 +29,103 @@
 	<title>Logbook</title>
 </svelte:head>
 
-<nav>
-	<a href="/">Logbook</a>
-	{#if $auth.isAuthenticated}
-		<a href="/chronicle">Chronicle</a>
-		<a href="/entries/new">New Entry</a>
-		<a href="/profile">Profile</a>
-		<button onclick={handleLock}>Lock</button>
-	{:else}
-		<a href="/unlock">Unlock</a>
-		<a href="/enlist">Enlist</a>
-	{/if}
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+	<div class="container">
+		<a class="navbar-brand fw-bold text-primary" href="/">Logbook</a>
+		<button
+			class="navbar-toggler border-0"
+			type="button"
+			data-bs-toggle="collapse"
+			data-bs-target="#navbarNav"
+			aria-controls="navbarNav"
+			aria-expanded="false"
+			aria-label="Toggle navigation"
+		>
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav ms-auto gap-2">
+				{#if $auth.isAuthenticated}
+					<li class="nav-item">
+						<a class="nav-link px-3 py-2 rounded border border-primary text-primary" href="/chronicle">Chronicle</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link px-3 py-2 rounded border border-success text-success" href="/entries/new">New Entry</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link px-3 py-2 rounded border border-secondary text-secondary" href="/profile">Profile</a>
+					</li>
+					<li class="nav-item">
+						<button class="btn btn-outline-danger btn-sm rounded" onclick={handleLock}>Lock</button>
+					</li>
+				{:else}
+					<li class="nav-item">
+						<a class="nav-link px-3 py-2 rounded border border-primary text-primary" href="/unlock">Unlock</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link px-3 py-2 rounded border border-success text-success" href="/enlist">Enlist</a>
+					</li>
+				{/if}
+			</ul>
+		</div>
+	</div>
 </nav>
 
-<main>
+<main class="container py-4">
 	{@render children()}
 </main>
 
 <style>
+	/* Paper-like aesthetic with soft shadows and rounded edges */
 	:global(body) {
-		font-family: system-ui, -apple-system, sans-serif;
-		margin: 0;
-		padding: 0;
-		background: #f5f5f5;
-	}
-
-	nav {
-		background: #333;
-		padding: 1rem;
-		display: flex;
-		gap: 1rem;
-		align-items: center;
-	}
-
-	nav a {
-		color: white;
-		text-decoration: none;
-	}
-
-	nav a:hover {
-		text-decoration: underline;
-	}
-
-	nav button {
-		background: none;
-		border: 1px solid white;
-		color: white;
-		padding: 0.25rem 0.5rem;
-		cursor: pointer;
-	}
-
-	nav button:hover {
-		background: white;
+		background-color: #f5f5f5;
 		color: #333;
 	}
 
-	main {
-		max-width: 800px;
-		margin: 2rem auto;
-		padding: 0 1rem;
-	}
-
-	:global(h1, h2, h3) {
-		margin-top: 0;
-	}
-
-	:global(form) {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		max-width: 400px;
-	}
-
-	:global(label) {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	:global(input, textarea, select) {
-		padding: 0.5rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		font-size: 1rem;
-	}
-
-	:global(textarea) {
-		min-height: 100px;
-		resize: vertical;
-	}
-
-	:global(button[type='submit']) {
-		background: #333;
-		color: white;
+	/* Enhance cards with paper-like appearance */
+	:global(.card) {
 		border: none;
-		padding: 0.75rem 1rem;
-		cursor: pointer;
-		border-radius: 4px;
+		border-radius: 0.5rem;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+		transition: box-shadow 0.2s ease;
 	}
 
-	:global(button[type='submit']:hover) {
-		background: #555;
+	:global(.card:hover) {
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 	}
 
-	:global(.error) {
-		color: #c00;
-		background: #fee;
-		padding: 0.5rem;
-		border-radius: 4px;
+	/* Soft shadows for alerts */
+	:global(.alert) {
+		border-radius: 0.5rem;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+		border: none;
 	}
 
-	:global(.success) {
-		color: #060;
-		background: #efe;
-		padding: 0.5rem;
-		border-radius: 4px;
+	/* Button refinements */
+	:global(.btn) {
+		border-radius: 0.375rem;
+		transition: all 0.15s ease;
 	}
 
-	:global(.entry) {
-		background: white;
-		padding: 1rem;
-		margin-bottom: 1rem;
-		border-radius: 4px;
-		border: 1px solid #ddd;
+	/* Form controls with subtle styling */
+	:global(.form-control),
+	:global(.form-select) {
+		border-radius: 0.375rem;
+		border: 1px solid #dee2e6;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 	}
 
-	:global(.entry-meta) {
-		font-size: 0.875rem;
-		color: #666;
-		margin-top: 0.5rem;
+	:global(.form-control:focus),
+	:global(.form-select:focus) {
+		box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 	}
 
-	:global(.entry-actions) {
-		margin-top: 0.5rem;
-		display: flex;
-		gap: 0.5rem;
+	/* Nav link hover effect */
+	:global(.nav-link) {
+		transition: all 0.15s ease;
 	}
 
-	:global(.entry-actions a, .entry-actions button) {
-		font-size: 0.875rem;
-		padding: 0.25rem 0.5rem;
-		background: #eee;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		text-decoration: none;
-		color: #333;
-		cursor: pointer;
-	}
-
-	:global(.entry-actions a:hover, .entry-actions button:hover) {
-		background: #ddd;
-	}
-
-	:global(.danger) {
-		background: #c00 !important;
-		color: white !important;
-		border-color: #900 !important;
-	}
-
-	:global(.danger:hover) {
-		background: #900 !important;
+	:global(.nav-link:hover) {
+		background-color: rgba(0, 0, 0, 0.02);
 	}
 </style>

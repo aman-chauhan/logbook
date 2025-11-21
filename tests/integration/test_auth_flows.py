@@ -67,19 +67,20 @@ def test_authentication_required_for_protected_endpoints(client, faker):
     assert response.status_code == 401
 
     # Update profile (nonexistent ID)
-    response = client.patch("/api/scribes/1", json={"bio": faker.text(max_nb_chars=100)})
+    fake_uuid = "00000000-0000-0000-0000-000000000000"
+    response = client.patch(f"/api/scribes/{fake_uuid}", json={"bio": faker.text(max_nb_chars=100)})
     assert response.status_code == 401
 
     # Delete profile (nonexistent ID)
-    response = client.delete("/api/scribes/1")
+    response = client.delete(f"/api/scribes/{fake_uuid}")
     assert response.status_code == 401
 
     # Update entry (nonexistent ID)
-    response = client.patch("/api/entries/1", json={"content": faker.paragraph()})
+    response = client.patch(f"/api/entries/{fake_uuid}", json={"content": faker.paragraph()})
     assert response.status_code == 401
 
     # Delete entry (nonexistent ID)
-    response = client.delete("/api/entries/1")
+    response = client.delete(f"/api/entries/{fake_uuid}")
     assert response.status_code == 401
 
 

@@ -281,7 +281,8 @@ class TestGetEntryEndpoint:
 
     def test_get_entry_not_found(self, client):
         """Test retrieving non-existent entry returns 404."""
-        response = client.get("/api/entries/999999")
+        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        response = client.get(f"/api/entries/{fake_uuid}")
 
         assert response.status_code == 404
         data = response.get_json()
@@ -401,8 +402,9 @@ class TestUpdateEntryEndpoint:
 
     def test_update_entry_not_found(self, client, auth_headers):
         """Test updating non-existent entry returns 404."""
+        fake_uuid = "00000000-0000-0000-0000-000000000000"
         response = client.patch(
-            "/api/entries/999999",
+            f"/api/entries/{fake_uuid}",
             json={"content": "Should fail"},
             headers=auth_headers
         )
@@ -511,7 +513,8 @@ class TestDeleteEntryEndpoint:
 
     def test_delete_entry_not_found(self, client, auth_headers):
         """Test deleting non-existent entry returns 404."""
-        response = client.delete("/api/entries/999999", headers=auth_headers)
+        fake_uuid = "00000000-0000-0000-0000-000000000000"
+        response = client.delete(f"/api/entries/{fake_uuid}", headers=auth_headers)
 
         assert response.status_code == 404
         data = response.get_json()

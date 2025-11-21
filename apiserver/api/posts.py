@@ -112,7 +112,7 @@ def create_entry(current_scribe):
     return jsonify({"data": entry.to_jsonapi()}), 201
 
 
-@api_bp.route("/entries/<int:entry_id>", methods=["GET"])
+@api_bp.route("/entries/<string:entry_id>", methods=["GET"])
 @optional_auth
 def get_entry(current_scribe, entry_id):
     """Get a single entry by ID.
@@ -126,18 +126,18 @@ def get_entry(current_scribe, entry_id):
 
     Args:
         current_scribe: Authenticated scribe or None (from @optional_auth)
-        entry_id: The ID of the entry to retrieve
+        entry_id: The UUID of the entry to retrieve
 
     Returns:
         200 OK: Entry found and accessible
         404 Not Found: Entry does not exist or is private and not owned by requester
 
     Example (public entry):
-        curl -X GET http://localhost:5000/api/entries/1 \\
+        curl -X GET http://localhost:5000/api/entries/550e8400-e29b-41d4-a716-446655440000 \\
              -H "Accept: application/vnd.api+json"
 
     Example (private entry):
-        curl -X GET http://localhost:5000/api/entries/2 \\
+        curl -X GET http://localhost:5000/api/entries/550e8400-e29b-41d4-a716-446655440001 \\
              -u alice:secret123 \\
              -H "Accept: application/vnd.api+json"
     """
@@ -182,7 +182,7 @@ def get_entry(current_scribe, entry_id):
     return jsonify({"data": entry.to_jsonapi()}), 200
 
 
-@api_bp.route("/entries/<int:entry_id>", methods=["PATCH"])
+@api_bp.route("/entries/<string:entry_id>", methods=["PATCH"])
 @require_auth
 def update_entry(current_scribe, entry_id):
     """Update an entry.
@@ -196,7 +196,7 @@ def update_entry(current_scribe, entry_id):
 
     Args:
         current_scribe: Authenticated scribe (from @require_auth)
-        entry_id: The ID of the entry to update
+        entry_id: The UUID of the entry to update
 
     Returns:
         200 OK: Entry updated successfully
@@ -205,7 +205,7 @@ def update_entry(current_scribe, entry_id):
         404 Not Found: Entry does not exist
 
     Example:
-        curl -X PATCH http://localhost:5000/api/entries/1 \\
+        curl -X PATCH http://localhost:5000/api/entries/550e8400-e29b-41d4-a716-446655440000 \\
              -u alice:secret123 \\
              -H "Content-Type: application/json" \\
              -d '{"content": "Updated content", "visibility": "private"}'
@@ -292,7 +292,7 @@ def update_entry(current_scribe, entry_id):
     return jsonify({"data": entry.to_jsonapi()}), 200
 
 
-@api_bp.route("/entries/<int:entry_id>", methods=["DELETE"])
+@api_bp.route("/entries/<string:entry_id>", methods=["DELETE"])
 @require_auth
 def delete_entry(current_scribe, entry_id):
     """Delete an entry.
@@ -304,7 +304,7 @@ def delete_entry(current_scribe, entry_id):
 
     Args:
         current_scribe: Authenticated scribe (from @require_auth)
-        entry_id: The ID of the entry to delete
+        entry_id: The UUID of the entry to delete
 
     Returns:
         204 No Content: Entry deleted successfully
@@ -312,7 +312,7 @@ def delete_entry(current_scribe, entry_id):
         404 Not Found: Entry does not exist
 
     Example:
-        curl -X DELETE http://localhost:5000/api/entries/1 \\
+        curl -X DELETE http://localhost:5000/api/entries/550e8400-e29b-41d4-a716-446655440000 \\
              -u alice:secret123 \\
              -i  # -i flag shows 204 status code
     """

@@ -136,7 +136,7 @@ def test_entry_references_after_scribe_profile_updates(client, faker):
         response = client.get(f"/api/entries/{entry_id}")
         assert response.status_code == 200
         entry_data = response.get_json()["data"]["attributes"]
-        assert entry_data["scribeId"] == int(scribe["id"])
+        assert entry_data["scribeId"] == scribe["id"]
         assert entry_data["scribeUsername"] == original_username
 
 
@@ -216,8 +216,9 @@ def test_database_consistency_after_failed_operations(client, faker):
     )
 
     # Try to update nonexistent entry (should fail)
+    fake_uuid = "00000000-0000-0000-0000-000000000000"
     response = client.patch(
-        "/api/entries/99999",
+        f"/api/entries/{fake_uuid}",
         json={"content": faker.paragraph()},
         headers=scribe["auth_headers"],
     )
@@ -264,9 +265,7 @@ def test_referential_integrity_scribe_to_entries(client, faker):
     for entry_id in scribe["entry_ids"]:
         response = client.get(f"/api/entries/{entry_id}")
         assert response.status_code == 200
-        assert response.get_json()["data"]["attributes"]["scribeId"] == int(
-            scribe["id"]
-        )
+        assert response.get_json()["data"]["attributes"]["scribeId"] == scribe["id"]
 
     # After scribe deletion, entries should be gone (cascade)
     client.delete(f"/api/scribes/{scribe['id']}", headers=scribe["auth_headers"])

@@ -30,12 +30,12 @@ This terminology emphasizes depth, purpose, and meaningful engagement over fleet
 
 ### Key Constraints
 
-- **API-only**: JSON request/response format, no HTML templates or frontend
+- **REST API with Web Client**: JSON API backend with SvelteKit frontend for user-friendly access
 - **Text-based content only**: No images, videos, or other media types
-- **Minimal tech stack**: Flask, SQLite, SQLAlchemy, Honcho only
+- **Minimal tech stack**: Flask, SQLite, SQLAlchemy, Honcho (backend); SvelteKit, TypeScript (frontend)
 - **Simple feature set**: Scribe management and entries with visibility controls (foundation for future expansion)
 - **Basic Authentication**: HTTP Basic Auth for simplicity
-- **Complete Honcho management**: All deployment and management through Honcho
+- **UUID-based IDs**: All resources use UUIDs instead of auto-incrementing integers for better scalability
 
 ### Current Feature Set (v1.0)
 
@@ -51,13 +51,22 @@ This terminology emphasizes depth, purpose, and meaningful engagement over fleet
 
 ## Technology Stack
 
+**Backend:**
 - **Backend**: Flask (Python 3.12)
 - **Database**: SQLite (file-based, zero-config)
 - **ORM**: SQLAlchemy (database abstraction layer)
 - **Flask-SQLAlchemy**: Flask integration for SQLAlchemy
 - **Flask-Migrate**: Database migration support
-- **Process Manager**: Honcho
 - **Authentication**: HTTP Basic Auth (built into Werkzeug)
+
+**Frontend:**
+- **Framework**: SvelteKit 2.x
+- **Language**: TypeScript
+- **UI Framework**: Bootstrap 5
+- **Build Tool**: Vite
+
+**Process Management:**
+- **Process Manager**: Honcho (manages both API and web servers)
 - **Development Environment**: Python 3.12 devcontainer
 
 ## Development Philosophy
@@ -109,13 +118,16 @@ honcho start
 ```
 
 **Current Status**:
-- ✓ Database models created (Scribe, Entry) with salt-based password hashing and explicit `__init__` methods
+- ✓ Database models created (Scribe, Entry) with UUID primary keys and salt-based password hashing
+- ✓ Explicit `__init__` methods for clarity and IDE compatibility
 - ✓ Migrations initialized and applied
 - ✓ SQLite database created at `instance/logbook.db`
 - ✓ Authentication decorators implemented (@require_auth, @optional_auth)
-- ✓ API blueprint setup with authentication endpoints (enlist, unlock, lock)
-- TODO: Scribe profile endpoints (GET, PATCH, DELETE)
-- TODO: Entry endpoints (POST, GET, PATCH, DELETE, chronicle)
+- ✓ API blueprint with all authentication endpoints (enlist, unlock, lock)
+- ✓ Scribe profile endpoints (GET, PATCH, DELETE)
+- ✓ Entry endpoints (POST, GET, PATCH, DELETE, chronicle)
+- ✓ SvelteKit web client with full UI implementation
+- ✓ Comprehensive test suite with 97% code coverage
 
 ### Code Formatting
 The project uses Black formatter for consistent code style:
@@ -131,17 +143,30 @@ black --check .
 
 ```
 logbook/
-├── apiserver/            # Main application package
+├── apiserver/            # Flask API server
 │   ├── __init__.py       # Package initialization ✓
 │   ├── extensions.py     # Flask extensions (db, migrate) ✓
-│   ├── models.py         # Database models (Scribe, Entry) ✓
+│   ├── models.py         # Database models (Scribe, Entry) with UUIDs ✓
 │   ├── run.py            # Application entry point with configuration ✓
 │   ├── auth.py           # Authentication utilities and decorators ✓
 │   └── api/              # API endpoints
 │       ├── __init__.py   # API blueprint registration ✓
 │       ├── auth.py       # Auth endpoints (enlist, unlock, lock) ✓
-│       ├── users.py      # Scribe endpoints (profile CRUD) (TODO)
-│       └── posts.py      # Entry endpoints (CRUD, chronicle) (TODO)
+│       ├── users.py      # Scribe endpoints (profile CRUD) ✓
+│       └── posts.py      # Entry endpoints (CRUD, chronicle) ✓
+├── webserver/            # SvelteKit web client ✓
+│   ├── src/
+│   │   ├── lib/
+│   │   │   ├── api.ts    # API client for backend ✓
+│   │   │   └── stores/   # Svelte stores ✓
+│   │   └── routes/       # Page components ✓
+│   ├── package.json      # Node.js dependencies ✓
+│   └── vite.config.ts    # Vite configuration ✓
+├── tests/                # Test suite ✓
+│   ├── conftest.py       # Shared fixtures ✓
+│   ├── unit/             # Unit tests ✓
+│   ├── integration/      # Integration tests ✓
+│   └── README.md         # Test documentation ✓
 ├── instance/             # Instance folder (Flask-generated)
 │   └── logbook.db        # SQLite database ✓
 ├── migrations/           # Database migration scripts ✓
@@ -149,8 +174,9 @@ logbook/
 │   ├── alembic.ini       # Alembic configuration ✓
 │   └── env.py            # Migration environment ✓
 ├── venv/                 # Virtual environment (not in git)
-├── requirements.txt      # Python dependencies
-├── Procfile              # Honcho process definition
+├── requirements.txt      # Python dependencies ✓
+├── pytest.ini            # Pytest configuration ✓
+├── Procfile              # Honcho configuration ✓
 ├── .env.example          # Environment variables template
 ├── .env                  # Environment variables (not in git)
 ├── .gitignore            # Git ignore rules
@@ -162,11 +188,12 @@ logbook/
 **Key Files:**
 - **[apiserver/run.py](apiserver/run.py)**: Application entry point with configuration ✓
 - **[apiserver/extensions.py](apiserver/extensions.py)**: Flask-SQLAlchemy and Flask-Migrate instances ✓
-- **[apiserver/models.py](apiserver/models.py)**: Scribe and Entry models with explicit `__init__` methods ✓
+- **[apiserver/models.py](apiserver/models.py)**: Scribe and Entry models with UUID IDs and explicit `__init__` methods ✓
 - **[apiserver/auth.py](apiserver/auth.py)**: `@require_auth` and `@optional_auth` decorators ✓
 - **[apiserver/api/auth.py](apiserver/api/auth.py)**: Authentication endpoints (enlist, unlock, lock) ✓
-- **[apiserver/api/users.py](apiserver/api/users.py)**: Scribe profile endpoints (TODO)
-- **[apiserver/api/posts.py](apiserver/api/posts.py)**: Entry endpoints (TODO)
+- **[apiserver/api/users.py](apiserver/api/users.py)**: Scribe profile endpoints (GET, PATCH, DELETE) ✓
+- **[apiserver/api/posts.py](apiserver/api/posts.py)**: Entry endpoints (POST, GET, PATCH, DELETE, chronicle) ✓
+- **[webserver/](webserver/)**: SvelteKit web client with full UI ✓
 
 ## Common Commands
 
@@ -235,17 +262,30 @@ Instructing students to delete `logbook.db` on every model change would:
 - Provide no learning value about database evolution
 
 ### Testing
-When tests are added:
+
+The project includes a comprehensive test suite with 97% code coverage:
+
 ```bash
 # Run all tests
 pytest
 
-# Run specific test file
-pytest tests/test_file.py
+# Run with coverage report
+pytest --cov=apiserver --cov-report=term-missing
 
-# Run with coverage
-pytest --cov=app tests/
+# Run specific test categories
+pytest -m unit                    # Unit tests only
+pytest -m integration             # Integration tests only
+pytest tests/unit/test_models.py  # Specific test file
 ```
+
+**Test Features:**
+- ✓ Unit tests for models, authentication, and API endpoints
+- ✓ Integration tests for complete user workflows
+- ✓ Faker library for realistic test data generation
+- ✓ SQLite foreign key constraints enforced in tests
+- ✓ Factory fixtures for easy test data creation
+
+For detailed testing documentation, see **[tests/README.md](tests/README.md)**.
 
 ## Flask API Patterns
 
@@ -375,7 +415,7 @@ All endpoints follow the **JSON:API v1.1 specification** for consistent, industr
 {
     "data": {
         "type": "scribes",
-        "id": "123",
+        "id": "550e8400-e29b-41d4-a716-446655440000",  # UUID string
         "attributes": {
             "username": "alice",
             "email": "alice@example.com",
@@ -408,6 +448,7 @@ All endpoints follow the **JSON:API v1.1 specification** for consistent, industr
 
 ### Model Conventions
 ```python
+import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -427,7 +468,7 @@ class Scribe(db.Model):
     """
     __tablename__ = 'scribes'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     username = db.Column(db.String(64), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
@@ -492,15 +533,19 @@ class Entry(db.Model):
 
     An Entry represents a purposeful record in a Scribe's Chronicle.
     Stores content and visibility settings.
+
+    Visibility Options:
+    - 'public': Visible to all users
+    - 'private': Visible only to the scribe who created it
     """
     __tablename__ = 'entries'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     content = db.Column(db.Text, nullable=False)
     visibility = db.Column(db.String(10), nullable=False, default='public')  # 'public' or 'private'
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    scribe_id = db.Column(db.Integer, db.ForeignKey('scribes.id'), nullable=False, index=True)
+    scribe_id = db.Column(db.String(36), db.ForeignKey('scribes.id'), nullable=False, index=True)
 
     # Type hint for backref relationship (created by Scribe.entries relationship)
     if TYPE_CHECKING:
@@ -511,7 +556,7 @@ class Entry(db.Model):
 
         Args:
             content (str): The text content of the entry
-            scribe_id (int): The ID of the scribe who created this entry
+            scribe_id (str): The UUID of the scribe who created this entry
             visibility (str, optional): Visibility setting ('public' or 'private').
                                        Defaults to 'public'.
 
@@ -530,8 +575,8 @@ class Entry(db.Model):
             'attributes': {
                 'content': self.content,
                 'visibility': self.visibility,
-                'createdAt': self.created_at.isoformat(),
-                'updatedAt': self.updated_at.isoformat(),
+                'createdAt': self.created_at.isoformat() + 'Z',
+                'updatedAt': self.updated_at.isoformat() + 'Z',
                 'scribeId': self.scribe_id,
                 'scribeUsername': self.scribe.username
             }
@@ -542,6 +587,7 @@ class Entry(db.Model):
 ```
 
 ### Key Principles:
+- **Use UUIDs for primary keys**: String(36) with uuid.uuid4() for better scalability and security
 - Use clear, descriptive table and column names
 - Add indexes on frequently queried columns (scribe_id, username, email)
 - Include `created_at` and `updated_at` timestamps on all models
@@ -551,22 +597,23 @@ class Entry(db.Model):
 - **Use TYPE_CHECKING for backref type hints**: Add type hints for SQLAlchemy backref relationships inside `if TYPE_CHECKING:` blocks to prevent IDE circular dependency warnings without runtime overhead
 - Add `to_jsonapi()` methods that return JSON:API resource objects with `type`, `id`, and `attributes`
 - Use camelCase for JSON attribute names (JSON:API convention) even though Python uses snake_case
-- Add 'Z' suffix to ISO timestamps to indicate UTC timezone
+- Add 'Z' suffix to ISO timestamps to indicate UTC timezone (JSON:API best practice)
 - Add helpful `__repr__` methods
 - Include business logic methods (set_password, check_password) in models
 - Use salt-based password hashing with explicit configuration (pbkdf2:sha256, 16-byte salt)
 
 ## Security Considerations
 
-Always implement these security practices for the API:
+Security practices implemented in this API:
 
 - **Password Hashing**: ✓ Implemented using `werkzeug.security.generate_password_hash()` with pbkdf2:sha256, 260,000 iterations, and 16-byte salt
 - **Salt Storage**: ✓ Salt is embedded in password_hash (format: `pbkdf2:sha256:260000$<salt>$<hash>`)
-- **Secret Key**: Set a strong `SECRET_KEY` via environment variable (currently using dev default)
-- **Input Validation**: Validate and sanitize all user inputs before processing (TODO)
-- **SQL Injection**: Always use parameterized queries (SQLAlchemy handles this automatically)
-- **Authentication**: Use HTTP Basic Auth with secure password handling (TODO)
-- **Authorization**: Verify scribe ownership before allowing updates/deletes (TODO)
+- **UUID IDs**: ✓ UUIDs prevent enumeration attacks and provide better security than sequential integers
+- **Secret Key**: ✓ Set via environment variable (change from dev default in production!)
+- **Input Validation**: ✓ All endpoints validate required fields and return appropriate errors
+- **SQL Injection**: ✓ SQLAlchemy parameterized queries prevent SQL injection
+- **Authentication**: ✓ HTTP Basic Auth with secure password handling implemented
+- **Authorization**: ✓ Ownership verification prevents unauthorized updates/deletes
 - **Rate Limiting**: Consider adding rate limiting for production (future enhancement)
 - **HTTPS**: Always use HTTPS in production to protect credentials in transit
 
@@ -592,7 +639,7 @@ Always implement these security practices for the API:
 
 ## Dependencies
 
-Core dependencies (from requirements.txt):
+**Backend (requirements.txt):**
 - Flask: Web framework
 - SQLAlchemy: ORM for database operations
 - Flask-SQLAlchemy: Flask integration for SQLAlchemy
@@ -601,17 +648,26 @@ Core dependencies (from requirements.txt):
 - Click: CLI creation
 - Honcho: Procfile-based process management
 - Blinker: Signal support for Flask
+- pytest: Testing framework
+- Faker: Test data generation
+
+**Frontend (webserver/package.json):**
+- SvelteKit: Frontend framework
+- TypeScript: Type-safe JavaScript
+- Bootstrap 5: UI component library
+- Vite: Build tool and dev server
 
 ## When Adding New Features
 
-1. **Plan the feature**: Think through the data model, API endpoints, and request/response formats
+1. **Plan the feature**: Think through the data model, API endpoints, UI requirements, and request/response formats
 2. **Update models**: Add or modify SQLAlchemy models in `models.py`
 3. **Create migration**: Run `flask db migrate -m "description"` and `flask db upgrade`
-4. **Implement routes**: Add API endpoint functions to appropriate file in `apiserver/api/`
+4. **Implement API routes**: Add endpoint functions to appropriate file in `apiserver/api/`
 5. **Add validation**: Validate input data and return appropriate error responses
-6. **Write tests**: Add tests for the new functionality (future)
-7. **Update documentation**: Update README with new endpoints and add docstrings
-8. **Format code**: Run `black .` before committing
+6. **Update web client**: Add UI components and API calls in `webserver/src/` (if needed)
+7. **Write tests**: Add unit and integration tests for the new functionality
+8. **Update documentation**: Update README and CLAUDE.md with new endpoints and add docstrings
+9. **Format code**: Run `black .` before committing
 
 ## Common API Patterns
 
@@ -740,12 +796,13 @@ All responses follow the **JSON:API v1.1 specification**:
 {
   "data": {
     "type": "scribes",
-    "id": "123",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "attributes": {
       "username": "alice",
       "email": "alice@example.com",
       "bio": "Learning to code!",
-      "createdAt": "2025-01-15T10:30:00Z"
+      "createdAt": "2025-01-15T10:30:00Z",
+      "updatedAt": "2025-01-15T10:30:00Z"
     }
   }
 }
@@ -757,13 +814,13 @@ All responses follow the **JSON:API v1.1 specification**:
   "data": [
     {
       "type": "entries",
-      "id": "1",
+      "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
       "attributes": {
         "content": "My first entry!",
         "visibility": "public",
         "createdAt": "2025-01-15T10:30:00Z",
         "updatedAt": "2025-01-15T10:30:00Z",
-        "scribeId": 123,
+        "scribeId": "550e8400-e29b-41d4-a716-446655440000",
         "scribeUsername": "alice"
       }
     }
@@ -833,12 +890,13 @@ curl -X POST http://localhost:5000/api/auth/enlist \
 # {
 #   "data": {
 #     "type": "scribes",
-#     "id": "1",
+#     "id": "550e8400-e29b-41d4-a716-446655440000",
 #     "attributes": {
 #       "username": "test",
 #       "email": "test@example.com",
 #       "bio": null,
-#       "createdAt": "2025-01-15T10:30:00Z"
+#       "createdAt": "2025-01-15T10:30:00Z",
+#       "updatedAt": "2025-01-15T10:30:00Z"
 #     }
 #   }
 # }
@@ -854,13 +912,13 @@ curl -X POST http://localhost:5000/api/entries \
 # {
 #   "data": {
 #     "type": "entries",
-#     "id": "1",
+#     "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
 #     "attributes": {
 #       "content": "Hello from Logbook!",
 #       "visibility": "public",
 #       "createdAt": "2025-01-15T10:30:00Z",
 #       "updatedAt": "2025-01-15T10:30:00Z",
-#       "scribeId": 1,
+#       "scribeId": "550e8400-e29b-41d4-a716-446655440000",
 #       "scribeUsername": "test"
 #     }
 #   }
@@ -876,14 +934,14 @@ curl -X GET http://localhost:5000/api/chronicle \
 #   "data": [
 #     {
 #       "type": "entries",
-#       "id": "1",
+#       "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
 #       "attributes": { ... }
 #     }
 #   ]
 # }
 
 # Delete an entry (returns 204 No Content with empty body)
-curl -X DELETE http://localhost:5000/api/entries/1 \
+curl -X DELETE http://localhost:5000/api/entries/7c9e6679-7425-40de-944b-e07fc1f90ae7 \
   -u test:pass123 \
   -i  # -i flag shows headers including 204 status
 

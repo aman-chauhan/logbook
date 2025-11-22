@@ -4,7 +4,7 @@ This document describes the Continuous Integration and Continuous Deployment (CI
 
 ## Overview
 
-Logbook uses GitHub Actions for automated testing and code coverage reporting. The pipeline is designed to run tests efficiently by only executing relevant test suites when their corresponding code changes.
+Logbook uses GitHub Actions for automated testing and code coverage reporting. The pipeline is designed to ensure comprehensive quality checks by running both API server and web server test suites on all pull requests, serving as the qualifying condition for merging to main.
 
 ## Workflow Structure
 
@@ -14,24 +14,21 @@ The CI pipeline is defined in `.github/workflows/test.yml` and consists of two p
 
 **Purpose:** Run Python/Flask backend tests with pytest
 
-**Runs tests when:**
-- Files in `apiserver/**` change
-- Files in `tests/**` change
-- `requirements.txt` changes
-- `pytest.ini` changes
+**Runs on:**
+- Every push to `main` branch
+- Every non-draft pull request to `main` or `develop`
 
-**Workflow always triggers, but skips test steps when:**
-- Only webserver files change
-- Only documentation files (`.md`, `LICENSE`, `docs/**`) change
+**Skips when:**
+- Pull request is in draft state
+- Only documentation files (`.md`, `LICENSE`, `docs/**`) change (workflow-level filter)
 
 **Steps:**
 1. Checkout code
-2. Detect changed files using `dorny/paths-filter@v3`
-3. Set up Python 3.12 (if API files changed)
-4. Install dependencies from `requirements.txt` (if API files changed)
-5. Run pytest with coverage (if API files changed)
-6. Upload coverage to Codecov with `apiserver` flag (if API files changed)
-7. Archive coverage reports as artifacts (if API files changed)
+2. Set up Python 3.12 with pip cache
+3. Install dependencies from `requirements.txt`
+4. Run pytest with coverage
+5. Upload coverage to Codecov with `apiserver` flag
+6. Archive coverage reports as artifacts (retention: 30 days)
 
 **Coverage Target:** 95%
 
@@ -39,62 +36,109 @@ The CI pipeline is defined in `.github/workflows/test.yml` and consists of two p
 
 **Purpose:** Run JavaScript/TypeScript frontend tests with Vitest
 
-**Runs tests when:**
-- Any files in `webserver/**` change
+**Runs on:**
+- Every push to `main` branch
+- Every non-draft pull request to `main` or `develop`
 
-**Workflow always triggers, but skips test steps when:**
-- Only API server files change
-- Only documentation files (`.md`, `LICENSE`, `docs/**`) change
+**Skips when:**
+- Pull request is in draft state
+- Only documentation files (`.md`, `LICENSE`, `docs/**`) change (workflow-level filter)
 
 **Steps:**
 1. Checkout code
-2. Detect changed files using `dorny/paths-filter@v3`
-3. Set up Node.js 20 (if webserver files changed)
-4. Install dependencies with `npm ci` (if webserver files changed)
-5. Run Vitest with coverage (if webserver files changed)
-6. Upload coverage to Codecov with `webserver` flag (if webserver files changed)
-7. Archive coverage reports as artifacts (if webserver files changed)
+2. Set up Node.js 20 with npm cache
+3. Install dependencies with `npm ci`
+4. Run Vitest with coverage
+5. Upload coverage to Codecov with `webserver` flag
+6. Archive coverage reports as artifacts (retention: 30 days)
 
 **Coverage Target:** 90%
 
-## Smart Path Filtering
+## Test Execution Strategy
 
-The workflow uses two levels of filtering to optimize CI runs:
+The workflow uses a comprehensive testing approach with smart filtering to balance thoroughness and efficiency:
 
-1. **Workflow-level filtering:** Documentation files (`.md`, `LICENSE`, `docs/**`) are ignored at the trigger level
-2. **Step-level filtering:** The `dorny/paths-filter` action conditionally executes test steps based on changed files
+### Comprehensive Testing
+- **Both test suites always run** regardless of which files changed
+- This ensures all PRs undergo full validation before merge
+- Prevents surprises from component interactions or shared dependencies
 
-This approach:
+### Draft PR Detection
+- Tests **automatically skip** when a pull request is in draft state
+- Allows work-in-progress without wasting CI resources
+- When PR is marked "Ready for review", tests run automatically
 
-- **Saves CI minutes** by skipping unnecessary test execution
-- **Speeds up feedback** by running only relevant tests
-- **Shows workflow status** even when skipped (both jobs always appear)
+### Documentation Changes
+- Workflow-level `paths-ignore` filter skips tests for documentation-only changes
+- Applies to: `**/*.md`, `LICENSE`, `docs/**`
+- This is the only path-based filtering in the pipeline
 
 ### How It Works
 
-- **Workflow triggers** on every push to `main` and every PR to `main`/`develop` (except doc-only changes)
-- **Path filter runs first** to detect which files changed
-- **Test steps execute conditionally** using `if: steps.filter.outputs.X == 'true'`
-- **Jobs appear as "skipped"** in GitHub UI when no relevant files changed
-
-### Path Filter Configuration
-
-**API Server:**
+**Trigger Logic:**
 ```yaml
-apiserver:
-  - 'apiserver/**'
-  - 'tests/**'
-  - 'requirements.txt'
-  - 'pytest.ini'
-  - '.github/workflows/test.yml'
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: ['**/*.md', 'LICENSE', 'docs/**']
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore: ['**/*.md', 'LICENSE', 'docs/**']
 ```
 
-**Web Server:**
+**Job-Level Condition:**
 ```yaml
-webserver:
-  - 'webserver/**'
-  - '.github/workflows/test.yml'
+if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 ```
+
+This ensures:
+- ✅ All pushes to `main` run tests
+- ✅ Non-draft PRs run both test suites completely
+- ❌ Draft PRs skip tests (saves CI minutes)
+- ❌ Documentation-only changes skip tests (workflow doesn't trigger)
+
+## Working with Draft Pull Requests
+
+Draft PRs provide a way to share work-in-progress without triggering expensive CI runs.
+
+### Creating a Draft PR
+
+**Via GitHub UI:**
+1. Click "Create pull request" dropdown
+2. Select "Create draft pull request"
+
+**Via GitHub CLI:**
+```bash
+gh pr create --draft --title "WIP: Feature name" --body "Description"
+```
+
+### When Tests Run
+
+| PR State | Tests Run? | Why |
+|----------|-----------|-----|
+| Draft | ❌ No | Saves CI minutes during development |
+| Ready for review | ✅ Yes | Full validation before merge |
+| Converted draft → ready | ✅ Yes | Automatic on status change |
+| Converted ready → draft | ❌ No | Stops future test runs |
+
+### Best Practices
+
+1. **Use drafts for WIP:** Start with draft PRs when code isn't ready for review
+2. **Mark ready when complete:** Convert to "Ready for review" when tests should run
+3. **Test locally first:** Run `pytest` and `npm test` before marking ready
+4. **Check CI status:** Ensure both jobs pass before requesting review
+
+### Converting Between States
+
+**Draft → Ready for Review:**
+- GitHub UI: Click "Ready for review" button
+- GitHub CLI: `gh pr ready <number>`
+- **Effect:** Tests will run automatically
+
+**Ready → Draft:**
+- GitHub UI: Click "Convert to draft" in sidebar
+- GitHub CLI: `gh pr ready <number> --undo`
+- **Effect:** Future commits won't trigger tests
 
 ## Code Coverage with Codecov
 
@@ -205,7 +249,7 @@ This token is configured in repository secrets and allows uploading coverage dat
 1. Add test files to `tests/unit/` or `tests/integration/`
 2. Follow existing patterns (use pytest fixtures, faker for data)
 3. Run locally to verify
-4. Commit and push - CI will automatically run
+4. Commit and push - CI will run **both** API and web server tests
 
 ### For Web Server
 
@@ -213,7 +257,9 @@ This token is configured in repository secrets and allows uploading coverage dat
 2. Use Vitest's `describe`, `it`, `expect` pattern
 3. Mock external dependencies (fetch, localStorage, etc.)
 4. Run locally with `npm test`
-5. Commit and push - CI will automatically run
+5. Commit and push - CI will run **both** API and web server tests
+
+**Note:** Both test suites always run on PRs, regardless of which files changed. This ensures comprehensive validation before merge.
 
 ## Troubleshooting
 
@@ -231,12 +277,12 @@ This token is configured in repository secrets and allows uploading coverage dat
 3. Review workflow logs for specific error messages
 4. Ensure coverage files are generated before upload step
 
-### Path Filter Not Working
+### Tests Not Running on PR
 
-1. Verify file paths match filter patterns exactly
-2. Check that `dorny/paths-filter@v3` action is running
-3. Review the "Check for X changes" step output
-4. Ensure `steps.filter.outputs.X == 'true'` conditions are correct
+1. Check if PR is in draft state - tests skip for drafts
+2. Verify PR targets `main` or `develop` branch
+3. Check if only documentation files changed (workflow won't trigger)
+4. Review workflow logs for job-level condition evaluation
 
 ## Best Practices
 
@@ -248,6 +294,10 @@ This token is configured in repository secrets and allows uploading coverage dat
 6. **Keep tests fast:** Slow tests discourage running them
 7. **Mock external dependencies:** Tests should be isolated
 8. **Test both success and failure cases:** Edge cases matter
+9. **Use draft PRs during development:** Save CI minutes while code is work-in-progress
+10. **Test locally before marking ready:** Run both test suites locally before converting draft to ready
+11. **Expect both test suites to run:** PRs always run full validation regardless of changed files
+12. **Don't rely on path filtering:** Code changes can have cross-component impacts
 
 ## Future Improvements
 
@@ -263,7 +313,7 @@ Potential enhancements to consider:
 ## Resources
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [GitHub Actions Contexts](https://docs.github.com/en/actions/learn-github-actions/contexts) (for draft PR detection)
 - [Codecov Documentation](https://docs.codecov.com/)
 - [pytest Documentation](https://docs.pytest.org/)
 - [Vitest Documentation](https://vitest.dev/)
-- [dorny/paths-filter Action](https://github.com/dorny/paths-filter)

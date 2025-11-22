@@ -1,22 +1,54 @@
-alembic==1.17.1
-blinker==1.9.0
-click==8.3.0
-Flask==3.1.2
-Flask-Migrate==4.1.0
-Flask-SQLAlchemy==3.1.1
-greenlet==3.2.4
-honcho==2.0.0
-itsdangerous==2.2.0
-Jinja2==3.1.6
-Mako==1.3.10
-MarkupSafe==3.0.3
-python-dotenv==1.2.1
-SQLAlchemy==2.0.44
-typing_extensions==4.15.0
-Werkzeug==3.1.3
+# ============================================================================
+# Core Framework
+# ============================================================================
 
-# Testing dependencies
-pytest==8.3.4
-pytest-cov==6.0.0
-pytest-flask==1.3.0
-Faker==30.8.2
+Flask==3.1.2                    # Web framework for building REST APIs
+Werkzeug==3.1.3                 # WSGI utilities (HTTP Basic Auth, security helpers)
+click==8.3.0                    # CLI creation for Flask commands
+Jinja2==3.1.6                   # Template engine (used by Flask)
+MarkupSafe==3.0.3               # Safe string handling (Jinja2 dependency)
+itsdangerous==2.2.0             # Secure data signing (Flask sessions)
+blinker==1.9.0                  # Signal support for Flask extensions
+
+# ============================================================================
+# Database & ORM
+# ============================================================================
+
+SQLAlchemy==2.0.44              # SQL toolkit and ORM for database operations
+Flask-SQLAlchemy==3.1.1         # Flask integration for SQLAlchemy
+greenlet==3.2.4                 # Lightweight concurrency (SQLAlchemy dependency)
+
+# ============================================================================
+# Database Migrations
+# ============================================================================
+
+Flask-Migrate==4.1.0            # Database migration support via Alembic
+alembic==1.17.1                 # Database migration tool
+Mako==1.3.10                    # Template library (Alembic dependency)
+
+# ============================================================================
+# Configuration & Environment
+# ============================================================================
+
+python-dotenv==1.2.1            # Load environment variables from .env files
+
+# ============================================================================
+# Process Management
+# ============================================================================
+
+honcho==2.0.0                   # Procfile-based process manager (runs API + web servers)
+
+# ============================================================================
+# Type Hints
+# ============================================================================
+
+typing_extensions==4.15.0       # Backported type hints for older Python versions
+
+# ============================================================================
+# Testing Dependencies
+# ============================================================================
+
+pytest==8.3.4                   # Testing framework
+pytest-cov==6.0.0               # Code coverage reporting for pytest
+pytest-flask==1.3.0             # Flask-specific pytest fixtures and utilities
+Faker==30.8.2                   # Realistic test data generation

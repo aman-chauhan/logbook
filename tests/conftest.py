@@ -5,7 +5,11 @@ This module provides common fixtures used across all test modules:
 - client: Flask test client
 - db: Database instance with foreign key constraints enabled
 - faker: Faker instance for generating realistic test data
-- sample_scribe: Pre-created test scribe
+- sample_scribe: Pre-created test scribe with known password
+- sample_entry: Pre-created test entry belonging to sample_scribe
+- auth_headers: HTTP Basic Auth headers for sample_scribe
+- scribe_factory: Factory function for creating multiple scribes
+- entry_factory: Factory function for creating multiple entries
 """
 
 import os

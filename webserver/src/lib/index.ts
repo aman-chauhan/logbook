@@ -1,1 +1,12 @@
-// place files you want to import through the `$lib` alias in this folder.
+/**
+ * Library barrel exports for the Logbook web client.
+ *
+ * This file is intentionally minimal for educational clarity. Components
+ * can import directly from specific files rather than through barrel exports:
+ *
+ * - import { api } from '$lib/api' - API client for backend communication
+ * - import { auth } from '$lib/stores/auth' - User authentication state management
+ *
+ * Future expansion: Add barrel exports here if the project grows and
+ * convenience imports become valuable (e.g., export { api } from './api').
+ */

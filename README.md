@@ -322,6 +322,10 @@ pytest tests/unit/test_models.py  # Specific test file
 
 For detailed testing documentation, test writing guidelines, and best practices, see **[tests/README.md](tests/README.md)**.
 
+### CI/CD
+
+The project includes automated testing and code coverage reporting via GitHub Actions. For details on the CI/CD pipeline, workflow configuration, and deployment processes, see **[.github/CI-CD.md](.github/CI-CD.md)**.
+
 ## Configuration
 
 Create a `.env` file from the template:
@@ -388,4 +392,4 @@ Logbook uses intentional terminology:
 
 ## License
 
-Apache License 2.0
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.

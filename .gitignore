@@ -1,3 +1,7 @@
+# ============================================================================
+# Python Artifacts
+# ============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -6,7 +10,9 @@ __pycache__/
 # C extensions
 *.so
 
-# Distribution / packaging
+# ============================================================================
+# Distribution / Packaging
+# ============================================================================
 .Python
 build/
 develop-eggs/
@@ -33,11 +39,16 @@ MANIFEST
 *.manifest
 *.spec
 
-# Installer logs
+# ============================================================================
+# Installer Logs
+# ============================================================================
+
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# ============================================================================
+# Testing / Coverage Reports
+# ============================================================================
 htmlcov/
 .tox/
 .nox/
@@ -52,9 +63,16 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# ============================================================================
 # Translations
+# ============================================================================
+
 *.mo
 *.pot
+
+# ============================================================================
+# Framework-Specific (Django/Flask)
+# ============================================================================
 
 # Django stuff:
 *.log
@@ -69,6 +87,10 @@ instance/
 # Logbook specific
 logbook.db
 logbook.db-journal
+
+# ============================================================================
+# Other Python Tools
+# ============================================================================
 
 # Scrapy stuff:
 .scrapy
@@ -139,7 +161,10 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# ============================================================================
+# Virtual Environments
+# ============================================================================
+
 .env
 .envrc
 .venv
@@ -148,6 +173,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# ============================================================================
+# Project-Specific Settings
+# ============================================================================
 
 # Spyder project settings
 .spyderproject
@@ -158,6 +187,10 @@ venv.bak/
 
 # mkdocs documentation
 /site
+
+# ============================================================================
+# Type Checkers and Linters
+# ============================================================================
 
 # mypy
 .mypy_cache/
@@ -173,18 +206,16 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# ============================================================================
+# IDE and Editor Configuration
+# ============================================================================
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
 
 # Visual Studio Code
 #  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
@@ -193,23 +224,19 @@ cython_debug/
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
+# Cursor (AI-powered code editor)
 .cursorignore
 .cursorindexingignore
 
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
+# ============================================================================
+# Miscellaneous
+# ============================================================================
+
+# Ruff (Python linter/formatter)
+.ruff_cache/
+
+# PyPI configuration
+.pypirc
 
 # Patch files
 *.patch

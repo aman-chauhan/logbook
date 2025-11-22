@@ -46,8 +46,8 @@ The CI pipeline is defined in `.github/workflows/test.yml` and consists of two p
 
 **Steps:**
 1. Checkout code
-2. Set up Node.js 20 with npm cache
-3. Install dependencies with `npm ci`
+2. Set up Node.js 20
+3. Install dependencies with `npm install`
 4. Run Vitest with coverage
 5. Upload coverage to Codecov with `webserver` flag
 6. Archive coverage reports as artifacts (retention: 30 days)

@@ -80,7 +80,7 @@ jobs:
 
     - name: Install dependencies
       working-directory: ./webserver
-      run: npm ci
+      run: npm install
 
     - name: Run tests with coverage
       working-directory: ./webserver

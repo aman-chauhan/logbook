@@ -82,9 +82,16 @@ on:
     branches: [ main ]
     paths-ignore: ['**/*.md', 'LICENSE', 'docs/**']
   pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
     branches: [ main, develop ]
     paths-ignore: ['**/*.md', 'LICENSE', 'docs/**']
 ```
+
+**Pull Request Event Types:**
+- `opened`: When a PR is first created
+- `synchronize`: When new commits are pushed to the PR
+- `reopened`: When a closed PR is reopened
+- `ready_for_review`: When a draft PR is marked as ready (triggers tests automatically)
 
 **Job-Level Condition:**
 ```yaml

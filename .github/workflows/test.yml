@@ -8,6 +8,7 @@ on:
       - 'LICENSE'
       - 'docs/**'
   pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
     branches: [ main, develop ]
     paths-ignore:
       - '**/*.md'

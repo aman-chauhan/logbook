@@ -1,12 +1,12 @@
 name: Tests
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-      - '**/*.md'
-      - 'LICENSE'
-      - 'docs/**'
+  # Daily test run on main branch at 11:00 PM UTC (end of day)
+  # This clubs together all commits from the day and tests them as a batch
+  schedule:
+    - cron: '0 23 * * *'  # Runs at 23:00 UTC every day
+
+  # Run tests on all pull requests
   pull_request:
     types: [ opened, synchronize, reopened, ready_for_review ]
     branches: [ main, develop ]
@@ -14,6 +14,9 @@ on:
       - '**/*.md'
       - 'LICENSE'
       - 'docs/**'
+
+  # Allow manual trigger for on-demand testing
+  workflow_dispatch:
 
 jobs:
   apiserver-tests:

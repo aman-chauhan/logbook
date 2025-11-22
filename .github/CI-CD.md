@@ -8,32 +8,30 @@ Logbook uses GitHub Actions for automated testing and code coverage reporting. T
 
 ## Workflow Structure
 
-The CI pipeline is defined in `.github/workflows/test.yml` and consists of two parallel jobs:
+The CI pipeline is defined in `.github/workflows/test.yml` and consists of two parallel jobs that run on every push to `main` and every pull request to `main` or `develop`.
 
 ### 1. API Server Tests (`apiserver-tests`)
 
 **Purpose:** Run Python/Flask backend tests with pytest
 
-**Triggers when:**
+**Runs tests when:**
 - Files in `apiserver/**` change
 - Files in `tests/**` change
 - `requirements.txt` changes
 - `pytest.ini` changes
-- Workflow file itself changes
 
-**Skips when:**
-- Only documentation files (`.md`, `LICENSE`) change
+**Workflow always triggers, but skips test steps when:**
 - Only webserver files change
-- Commit message contains `[skip ci]`
+- Only documentation files (`.md`, `LICENSE`, `docs/**`) change
 
 **Steps:**
 1. Checkout code
 2. Detect changed files using `dorny/paths-filter@v3`
-3. Set up Python 3.12 (if needed)
-4. Install dependencies from `requirements.txt` (if needed)
-5. Run pytest with coverage (`pytest --cov=apiserver --cov-branch`)
-6. Upload coverage to Codecov with `apiserver` flag
-7. Archive coverage reports as artifacts
+3. Set up Python 3.12 (if API files changed)
+4. Install dependencies from `requirements.txt` (if API files changed)
+5. Run pytest with coverage (if API files changed)
+6. Upload coverage to Codecov with `apiserver` flag (if API files changed)
+7. Archive coverage reports as artifacts (if API files changed)
 
 **Coverage Target:** 95%
 
@@ -41,42 +39,43 @@ The CI pipeline is defined in `.github/workflows/test.yml` and consists of two p
 
 **Purpose:** Run JavaScript/TypeScript frontend tests with Vitest
 
-**Triggers when:**
-- Files in `webserver/**` change
-- Workflow file itself changes
+**Runs tests when:**
+- Any files in `webserver/**` change
 
-**Skips when:**
-- Only documentation files change
+**Workflow always triggers, but skips test steps when:**
 - Only API server files change
-- Commit message contains `[skip ci]`
+- Only documentation files (`.md`, `LICENSE`, `docs/**`) change
 
 **Steps:**
 1. Checkout code
 2. Detect changed files using `dorny/paths-filter@v3`
-3. Set up Node.js 20 (if needed)
-4. Install dependencies with `npm ci` (if needed)
-5. Run Vitest with coverage (`npm run test:coverage`)
-6. Upload coverage to Codecov with `webserver` flag
-7. Archive coverage reports as artifacts
+3. Set up Node.js 20 (if webserver files changed)
+4. Install dependencies with `npm ci` (if webserver files changed)
+5. Run Vitest with coverage (if webserver files changed)
+6. Upload coverage to Codecov with `webserver` flag (if webserver files changed)
+7. Archive coverage reports as artifacts (if webserver files changed)
 
 **Coverage Target:** 90%
 
 ## Smart Path Filtering
 
-The workflow uses the `dorny/paths-filter` action to intelligently determine which jobs need to run based on file changes. This approach:
+The workflow uses two levels of filtering to optimize CI runs:
 
-- **Saves CI minutes** by skipping unnecessary test runs
+1. **Workflow-level filtering:** Documentation files (`.md`, `LICENSE`, `docs/**`) are ignored at the trigger level
+2. **Step-level filtering:** The `dorny/paths-filter` action conditionally executes test steps based on changed files
+
+This approach:
+
+- **Saves CI minutes** by skipping unnecessary test execution
 - **Speeds up feedback** by running only relevant tests
-- **Prevents false failures** from unrelated changes
+- **Shows workflow status** even when skipped (both jobs always appear)
 
 ### How It Works
 
-Each job has two levels of filtering:
-
-1. **Job-level `if` condition:** Checks for `[skip ci]` in commit messages
-2. **Step-level conditions:** Only execute steps if relevant files changed
-
-This allows jobs to appear in the workflow run but skip execution when not needed.
+- **Workflow triggers** on every push to `main` and every PR to `main`/`develop` (except doc-only changes)
+- **Path filter runs first** to detect which files changed
+- **Test steps execute conditionally** using `if: steps.filter.outputs.X == 'true'`
+- **Jobs appear as "skipped"** in GitHub UI when no relevant files changed
 
 ### Path Filter Configuration
 
@@ -178,14 +177,6 @@ npm run test:coverage
 npm run test:ui
 ```
 
-## Skipping CI
-
-To skip CI runs entirely (e.g., for documentation-only changes), include `[skip ci]` in your commit message:
-
-```bash
-git commit -m "Update README [skip ci]"
-```
-
 ## Environment Variables
 
 ### API Server Tests
@@ -245,7 +236,7 @@ This token is configured in repository secrets and allows uploading coverage dat
 1. Verify file paths match filter patterns exactly
 2. Check that `dorny/paths-filter@v3` action is running
 3. Review the "Check for X changes" step output
-4. Ensure `steps.changes.outputs.X == 'true'` conditions are correct
+4. Ensure `steps.filter.outputs.X == 'true'` conditions are correct
 
 ## Best Practices
 

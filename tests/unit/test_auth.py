@@ -1,5 +1,12 @@
 """Unit tests for authentication decorators.
 
+This module tests the authentication decorators (@require_auth, @optional_auth)
+defined in apiserver/auth.py. These decorators handle HTTP Basic Auth validation
+and provide the current_scribe to protected routes.
+
+For tests of the authentication API endpoints (POST /api/auth/enlist, unlock, lock),
+see test_auth_endpoints.py instead.
+
 Tests for authentication utilities including:
 - @require_auth decorator
 - @optional_auth decorator

@@ -1,5 +1,12 @@
 """Unit tests for authentication endpoints.
 
+This module tests the authentication API endpoints defined in apiserver/api/auth.py.
+These endpoints handle user registration (enlist), credential verification (unlock),
+and logout (lock).
+
+For tests of the authentication decorators (@require_auth, @optional_auth),
+see test_auth.py instead.
+
 Tests for authentication API endpoints:
 - POST /api/auth/enlist (registration)
 - POST /api/auth/unlock (login)

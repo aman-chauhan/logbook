@@ -8,6 +8,7 @@ on:
       - 'LICENSE'
       - 'docs/**'
   pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
     branches: [ main, develop ]
     paths-ignore:
       - '**/*.md'
@@ -18,36 +19,24 @@ jobs:
   apiserver-tests:
     name: API Server Tests
     runs-on: ubuntu-latest
+    # Skip tests for draft PRs, but always run for pushes and ready PRs
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Check for API changes
-      uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          apiserver:
-            - 'apiserver/**'
-            - 'tests/**'
-            - 'requirements.txt'
-            - 'pytest.ini'
-
     - name: Set up Python 3.12
-      if: steps.filter.outputs.apiserver == 'true'
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'pip'
 
     - name: Install dependencies
-      if: steps.filter.outputs.apiserver == 'true'
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Run tests with coverage
-      if: steps.filter.outputs.apiserver == 'true'
       run: |
         pytest --cov=apiserver --cov-report=xml --cov-report=term-missing --cov-branch
       env:
@@ -57,7 +46,6 @@ jobs:
         SQLALCHEMY_DATABASE_URI: sqlite:///test.db
 
     - name: Upload coverage to Codecov
-      if: steps.filter.outputs.apiserver == 'true'
       uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
@@ -68,7 +56,6 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Archive coverage reports
-      if: steps.filter.outputs.apiserver == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: apiserver-coverage-report
@@ -80,38 +67,26 @@ jobs:
   webserver-tests:
     name: Web Server Tests
     runs-on: ubuntu-latest
+    # Skip tests for draft PRs, but always run for pushes and ready PRs
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Check for webserver changes
-      uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        filters: |
-          webserver:
-            - 'webserver/**'
-
     - name: Set up Node.js
-      if: steps.filter.outputs.webserver == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: webserver/package-lock.json
 
     - name: Install dependencies
-      if: steps.filter.outputs.webserver == 'true'
       working-directory: ./webserver
-      run: npm ci
+      run: npm install
 
     - name: Run tests with coverage
-      if: steps.filter.outputs.webserver == 'true'
       working-directory: ./webserver
       run: npm run test:coverage
 
     - name: Upload coverage to Codecov
-      if: steps.filter.outputs.webserver == 'true'
       uses: codecov/codecov-action@v4
       with:
         directory: ./webserver/coverage
@@ -122,7 +97,6 @@ jobs:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Archive coverage reports
-      if: steps.filter.outputs.webserver == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: webserver-coverage-report
